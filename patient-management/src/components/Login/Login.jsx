@@ -1,26 +1,53 @@
 import { useState } from "react";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"; 
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+
+    try {
+      const auth = getAuth();
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      const user = userCredential.user;
+      console.log("Logged in successfully:", user);
+
+      alert("Login successful!");
+
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert(error.message);
+    }
   };
 
-  const handleForgotPassword = () => {
-    console.log("Forgot Password clicked");
-  };
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert("Please enter your email to reset your password.");
+      return;
+    }
+  
+    try {
+      const auth = getAuth();
+  
+      await sendPasswordResetEmail(auth, email);
+  
+      alert("Password reset email sent! Check your inbox.");
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      alert(error.message);
+    }
+  }
 
   return (
     <div>
       <form onSubmit={handleLogin}>
-        <h2 >Login</h2>
-        <label htmlFor="email">
-          Email
-        </label>
+        <h2>Login</h2>
+
+        <label htmlFor="email">Email</label>
         <br />
         <input
           type="email"
@@ -30,10 +57,10 @@ const Login = () => {
           placeholder="Enter your email"
           required
         />
-        <br /> <br />
-        <label htmlFor="password">
-          Password
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="password">Password</label>
         <br />
         <input
           type="password"
@@ -43,20 +70,23 @@ const Login = () => {
           placeholder="Enter your password"
           required
         />
-        <br /><br />
-        <button type="submit">
-          Login
-        </button>
-        <br /> <br />
+        <br />
+        <br />
+
+        <button type="submit">Login</button>
+        <br />
+        <br />
+
         <button
           type="button"
           onClick={handleForgotPassword}
+          disabled={!email}
         >
           Forgot Password?
         </button>
       </form>
     </div>
   );
-}
+};
 
 export default Login;

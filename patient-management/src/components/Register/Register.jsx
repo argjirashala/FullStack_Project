@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { db } from "../../firebase-config"; 
+import { collection, addDoc } from "firebase/firestore"; 
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"; 
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -21,17 +24,55 @@ const Register = () => {
     }));
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Example: Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
-    // Handle registration logic here
-    console.log("Registration Data:", formData);
+    try {
+      const auth = getAuth();
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+
+      const user = userCredential.user;
+
+      const patientsCollectionRef = collection(db, "patients");
+
+      await addDoc(patientsCollectionRef, {
+        personalId: formData.personalId,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        birthday: formData.birthday,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        userId: user.uid, 
+      });
+
+      alert("Patient registered successfully!");
+
+      setFormData({
+        personalId: "",
+        firstName: "",
+        lastName: "",
+        birthday: "",
+        address: "",
+        phone: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      console.error("Error registering user:", error);
+      alert(error.message);
+    }
   };
 
   return (
@@ -39,9 +80,7 @@ const Register = () => {
       <form onSubmit={handleRegister}>
         <h2>Register</h2>
 
-        <label htmlFor="personalId">
-          Person ID
-        </label>
+        <label htmlFor="personalId">Person ID</label>
         <br />
         <input
           type="text"
@@ -51,10 +90,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /> <br />
-        <label htmlFor="firstName">
-          First Name
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="firstName">First Name</label>
         <br />
         <input
           type="text"
@@ -64,10 +103,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <label htmlFor="lastName">
-          Last Name
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="lastName">Last Name</label>
         <br />
         <input
           type="text"
@@ -77,10 +116,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <label htmlFor="birthday">
-          Birthday
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="birthday">Birthday</label>
         <br />
         <input
           type="date"
@@ -90,10 +129,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <label htmlFor="address">
-          Address
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="address">Address</label>
         <br />
         <input
           type="text"
@@ -103,10 +142,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <label htmlFor="phone">
-          Phone
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="phone">Phone</label>
         <br />
         <input
           type="number"
@@ -116,10 +155,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <label htmlFor="email">
-          Email
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="email">Email</label>
         <br />
         <input
           type="email"
@@ -129,10 +168,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <label htmlFor="password">
-          Password
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="password">Password</label>
         <br />
         <input
           type="password"
@@ -142,10 +181,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <label htmlFor="confirmPassword">
-          Confirm Password
-        </label>
+        <br />
+        <br />
+
+        <label htmlFor="confirmPassword">Confirm Password</label>
         <br />
         <input
           type="password"
@@ -155,10 +194,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <br /><br />
-        <button type="submit">
-          Register
-        </button>
+        <br />
+        <br />
+
+        <button type="submit">Register</button>
       </form>
     </div>
   );
