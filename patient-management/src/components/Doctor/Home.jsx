@@ -1,10 +1,19 @@
-const Home = () => {
+import PropTypes from "prop-types"; 
+
+const Home = ({ doctorData }) => {
   return (
     <div>
-      <h1>Welcome to your Dashboard</h1>
-      <p>Manage your appointments and availability from here.</p>
+      <h1>Welcome, {doctorData?.name}!</h1>
+      <p>Doctor ID: {doctorData?.doctorId}</p>
     </div>
   );
+};
+
+Home.propTypes = {
+  doctorData: PropTypes.shape({
+    name: PropTypes.string.isRequired, 
+    doctorId: PropTypes.string.isRequired, 
+  }).isRequired,
 };
 
 export default Home;

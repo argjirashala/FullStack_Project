@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase-config";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
 const DoctorLogin = () => {
   const [doctorId, setDoctorId] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,7 +21,10 @@ const DoctorLogin = () => {
 
         if (password === doctorData.password) {
           console.log("Doctor logged in successfully:", doctorData);
-          alert(`Welcome, ${doctorData.name}!`);
+
+          localStorage.setItem("doctorData", JSON.stringify(doctorData));
+
+          navigate("/doctor/home");
         } else {
           alert("Invalid password. Please try again.");
         }
