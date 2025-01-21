@@ -7,6 +7,7 @@ import Login from "./components/Login/Login";
 import Register from "./components/Register/Register";
 import PatientView from "./components/Patient/PatientView";
 import DoctorLogin from "./components/Login/DoctorLogin";
+import DoctorView from "./components/Doctor/DoctorView";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -59,6 +60,7 @@ const App = () => {
         />
         <Route path="*" element={<Navigate to="/login" />} />
         <Route path="/doctor-login" element={<DoctorLogin />} />
+        <Route path="/doctor/*" element={<DoctorView />} /> {/* DoctorView */}
       </Routes>
     </div>
   );
