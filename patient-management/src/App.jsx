@@ -1,16 +1,62 @@
-import { Routes, Route } from 'react-router-dom';
-import Login from './components/Login/Login';
-import Register from './components/Register/Register';
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./firebase-config";
+import Login from "./components/Login/Login";
+import Register from "./components/Register/Register";
 import PatientView from "./components/Patient/PatientView";
 
 const App = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const auth = getAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          const patientDocRef = doc(db, "patients", currentUser.uid);
+          const patientDoc = await getDoc(patientDocRef);
+
+          if (patientDoc.exists()) {
+            setUser({ uid: currentUser.uid, ...patientDoc.data() });
+          } else {
+            console.error("No patient data found for this user.");
+          }
+        } catch (error) {
+          console.error("Error fetching patient data:", error);
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false); 
+    });
+
+    return () => unsubscribe(); 
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; 
+  }
+
   return (
     <div>
       <Routes>
-        {/* <Route path="/" element={} /> */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/patient/*" element={<PatientView />} />
+        <Route
+          path="/login"
+          element={!user ? <Login /> : <Navigate to="/patient/home" />}
+        />
+        <Route
+          path="/register"
+          element={!user ? <Register /> : <Navigate to="/patient/home" />}
+        />
+        <Route
+          path="/patient/*"
+          element={user ? <PatientView user={user} /> : <Navigate to="/login" />}
+        />
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </div>
   );

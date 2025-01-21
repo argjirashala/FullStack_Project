@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"; 
 import { useNavigate } from "react-router-dom";
+import { db } from "../../firebase-config"; 
+import { doc, getDoc } from "firebase/firestore"; 
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,12 +16,20 @@ const Login = () => {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-      console.log("Logged in successfully:", userCredential.user);
+      const user = userCredential.user; 
+      console.log("Logged in successfully:", user);
 
-      alert("Login successful!");
+      const patientDocRef = doc(db, "patients", user.uid); 
+      const patientDoc = await getDoc(patientDocRef);
 
-      // Redirect to the patient's view
-      navigate("/patient/home");
+      if (patientDoc.exists()) {
+        const patientData = patientDoc.data();
+        console.log("Patient data:", patientData);
+
+        navigate("/patient/home", { state: { patientData } });
+      } else {
+        alert("Patient record not found in Firestore!");
+      }
     } catch (error) {
       console.error("Error during login:", error);
       alert(error.message);
@@ -34,7 +44,6 @@ const Login = () => {
   
     try {
       const auth = getAuth();
-  
       await sendPasswordResetEmail(auth, email);
   
       alert("Password reset email sent! Check your inbox.");
@@ -42,7 +51,7 @@ const Login = () => {
       console.error("Error sending password reset email:", error);
       alert(error.message);
     }
-  }
+  };
 
   return (
     <div>

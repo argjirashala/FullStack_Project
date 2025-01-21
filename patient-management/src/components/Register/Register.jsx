@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { db } from "../../firebase-config"; 
-import { collection, addDoc } from "firebase/firestore"; 
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"; 
+import { db } from "../../firebase-config";
+import { doc, setDoc } from "firebase/firestore"; 
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -43,9 +43,8 @@ const Register = () => {
 
       const user = userCredential.user;
 
-      const patientsCollectionRef = collection(db, "patients");
-
-      await addDoc(patientsCollectionRef, {
+      const patientDocRef = doc(db, "patients", user.uid); 
+      await setDoc(patientDocRef, {
         personalId: formData.personalId,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -53,7 +52,6 @@ const Register = () => {
         address: formData.address,
         phone: formData.phone,
         email: formData.email,
-        userId: user.uid, 
       });
 
       alert("Patient registered successfully!");
