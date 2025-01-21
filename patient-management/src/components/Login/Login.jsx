@@ -1,23 +1,25 @@
 import { useState } from "react";
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"; 
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       const auth = getAuth();
-
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-      const user = userCredential.user;
-      console.log("Logged in successfully:", user);
+      console.log("Logged in successfully:", userCredential.user);
 
       alert("Login successful!");
 
+      // Redirect to the patient's view
+      navigate("/patient/home");
     } catch (error) {
       console.error("Error during login:", error);
       alert(error.message);
