@@ -6,6 +6,7 @@ import { db } from "./firebase-config";
 import Login from "./components/Login/Login";
 import Register from "./components/Register/Register";
 import PatientView from "./components/Patient/PatientView";
+import DoctorLogin from "./components/Login/DoctorLogin";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -57,6 +58,7 @@ const App = () => {
           element={user ? <PatientView user={user} /> : <Navigate to="/login" />}
         />
         <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="/doctor-login" element={<DoctorLogin />} />
       </Routes>
     </div>
   );
