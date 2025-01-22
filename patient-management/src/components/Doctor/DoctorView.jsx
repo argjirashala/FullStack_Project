@@ -4,6 +4,7 @@ import Home from "./Home";
 import SetAvailability from "./Availability";
 import UpcomingAppointments from "./UpcomingAppointments";
 import ListOfAppointments from "./ListOfAppointments";
+import Profile from "./Profile"; 
 
 const DoctorView = () => {
   const [doctorData, setDoctorData] = useState(null);
@@ -35,9 +36,8 @@ const DoctorView = () => {
         <Link to="/doctor/set-availability">Set Availability</Link>
         <Link to="/doctor/upcoming-appointments">Upcoming Appointments</Link>
         <Link to="/doctor/list-of-appointments">List of Appointments</Link>
-        <button onClick={handleLogout}>
-          Logout
-        </button>
+        <Link to="/doctor/profile">Profile</Link>
+        <button onClick={handleLogout}>Logout</button>
       </nav>
 
       <div>
@@ -46,11 +46,11 @@ const DoctorView = () => {
           <Route path="set-availability" element={<SetAvailability doctorData={doctorData} />} />
           <Route path="upcoming-appointments" element={<UpcomingAppointments doctorData={doctorData} />} />
           <Route path="list-of-appointments" element={<ListOfAppointments doctorData={doctorData} />} />
+          <Route path="profile" element={<Profile doctorData={doctorData} />} />
         </Routes>
       </div>
     </div>
   );
 };
-
 
 export default DoctorView;
