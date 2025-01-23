@@ -1,11 +1,16 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../firebase-config"; 
+import { collection, query, where, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase-config";
 
 const Home = ({ user }) => {
   const [specialization, setSpecialization] = useState("");
-  const [doctors, setDoctors] = useState([]); 
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [reason, setReason] = useState("");
 
   const handleSpecializationChange = async (e) => {
     const selectedSpecialization = e.target.value;
@@ -30,7 +35,94 @@ const Home = ({ user }) => {
         setDoctors([]);
       }
     } else {
-      setDoctors([]); 
+      setDoctors([]);
+    }
+  };
+
+  const handleDoctorChange = (e) => {
+    setSelectedDoctor(e.target.value);
+    setSelectedDate(""); 
+    setAvailableSlots([]);
+    setSelectedTimeSlot("");
+  };
+
+  const handleDateChange = async (e) => {
+    const selectedDate = e.target.value;
+    setSelectedDate(selectedDate);
+
+    if (selectedDoctor && selectedDate) {
+      try {
+        const doctorDocRef = doc(db, "doctors", selectedDoctor);
+        const doctorSnapshot = await getDoc(doctorDocRef);
+
+        if (doctorSnapshot.exists()) {
+          const doctorData = doctorSnapshot.data();
+
+          const availabilityForDate = doctorData.availability.find(
+            (item) => item.date === selectedDate
+          );
+
+          if (availabilityForDate) {
+            const allSlots = availabilityForDate.slots;
+
+            const appointmentsCollection = collection(db, "appointments");
+            const appointmentQuery = query(
+              appointmentsCollection,
+              where("doctorId", "==", selectedDoctor),
+              where("date", "==", selectedDate)
+            );
+            const appointmentSnapshot = await getDocs(appointmentQuery);
+
+            const bookedSlots = appointmentSnapshot.docs.map(
+              (doc) => doc.data().time
+            );
+
+            const freeSlots = allSlots.filter(
+              (slot) => !bookedSlots.includes(`${slot.startTime} - ${slot.endTime}`)
+            );
+
+            setAvailableSlots(freeSlots);
+          } else {
+            setAvailableSlots([]); 
+          }
+        } else {
+          console.error("Doctor not found");
+        }
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+      }
+    }
+  };
+
+  const handleBookAppointment = async () => {
+    if (!selectedTimeSlot || !reason) {
+      alert("Please select a time slot and enter the reason for the appointment.");
+      return;
+    }
+
+    try {
+      const appointmentData = {
+        date: selectedDate,
+        time: selectedTimeSlot,
+        patientId: user.personalId,
+        doctorId: selectedDoctor,
+        patientFirstName: user.firstName,
+        patientLastName: user.lastName,
+        reason,
+      };
+
+      const appointmentsCollection = collection(db, "appointments");
+      const docRef = await addDoc(appointmentsCollection, appointmentData);
+
+      alert(`Appointment booked successfully! Appointment ID: ${docRef.id}`);
+      setSelectedDoctor("");
+      setSelectedDate("");
+      setAvailableSlots([]);
+      setSelectedTimeSlot("");
+      setReason("");
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+      alert("An error occurred while booking the appointment. Please try again.");
     }
   };
 
@@ -112,13 +204,20 @@ const Home = ({ user }) => {
           <option value="VascularSurgeon">Vascular Surgeon</option>
           <option value="Veterinarian">Veterinarian</option>
         </select>
+
         <br />
         <br />
+
         {specialization && (
           <div>
             <label htmlFor="doctors">Select Doctor</label>
             <br />
-            <select id="doctors" required>
+            <select
+              id="doctors"
+              value={selectedDoctor}
+              onChange={handleDoctorChange}
+              required
+            >
               <option value="">--Select Doctor--</option>
               {doctors.map((doctor) => (
                 <option key={doctor.id} value={doctor.id}>
@@ -126,6 +225,53 @@ const Home = ({ user }) => {
                 </option>
               ))}
             </select>
+          </div>
+        )}
+        <br />
+
+        {selectedDoctor && (
+          <div>
+            <label htmlFor="date">Select Date</label>
+            <br />
+            <input type="date" id="date" value={selectedDate} onChange={handleDateChange} />
+          </div>
+        )}
+        <br />
+
+        {selectedDate && availableSlots.length > 0 && (
+          <div>
+            <label htmlFor="timeSlot">Select Time Slot</label>
+            <br />
+            <select
+              id="timeSlot"
+              value={selectedTimeSlot}
+              onChange={(e) => setSelectedTimeSlot(e.target.value)}
+              required
+            >
+              <option value="">--Select Time Slot--</option>
+              {availableSlots.map((slot, index) => (
+                <option key={index} value={`${slot.startTime} - ${slot.endTime}`}>
+                  {slot.startTime} - {slot.endTime}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <br />
+
+        {selectedDate && selectedTimeSlot && (
+          <div>
+            <label htmlFor="reason">Reason for Appointment</label>
+            <br />
+            <textarea
+              id="reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required
+            />
+            <br />
+            <br />
+            <button onClick={handleBookAppointment}>Book Appointment</button>
           </div>
         )}
       </div>

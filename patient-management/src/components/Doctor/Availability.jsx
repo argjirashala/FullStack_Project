@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase-config";
 
 const SetAvailability = ({ doctorData }) => {
@@ -8,19 +8,42 @@ const SetAvailability = ({ doctorData }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [availability, setAvailability] = useState([]);
+  const [bookedSlots, setBookedSlots] = useState([]);
 
   useEffect(() => {
-    const fetchAvailability = async () => {
-      const doctorDocRef = doc(db, "doctors", doctorData.doctorId);
-      const doctorSnapshot = await getDoc(doctorDocRef);
-      if (doctorSnapshot.exists()) {
-        const data = doctorSnapshot.data();
-        setAvailability(data.availability || []);
+    const fetchAvailabilityAndBookedSlots = async () => {
+      try {
+        const doctorDocRef = doc(db, "doctors", doctorData.doctorId);
+        const doctorSnapshot = await getDoc(doctorDocRef);
+
+        if (doctorSnapshot.exists()) {
+          const data = doctorSnapshot.data();
+          setAvailability(data.availability || []);
+        }
+
+        const appointmentsCollection = collection(db, "appointments");
+        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorId));
+        const querySnapshot = await getDocs(q);
+
+        const booked = querySnapshot.docs.map((doc) => ({
+          date: doc.data().date,
+          time: doc.data().time,
+        }));
+
+        setBookedSlots(booked);
+      } catch (error) {
+        console.error("Error fetching availability or booked slots:", error);
       }
     };
 
-    fetchAvailability();
+    fetchAvailabilityAndBookedSlots();
   }, [doctorData.doctorId]);
+
+  const isSlotBooked = (date, startTime, endTime) => {
+    return bookedSlots.some(
+      (slot) => slot.date === date && slot.time === `${startTime} - ${endTime}`
+    );
+  };
 
   const handleAddTimeSlot = async () => {
     if (!date || !startTime || !endTime) {
@@ -57,11 +80,13 @@ const SetAvailability = ({ doctorData }) => {
   };
 
   const handleRemoveTimeSlot = async (dateToRemove, slotIndex) => {
-    const updatedAvailability = availability.map((item) =>
-      item.date === dateToRemove
-        ? { ...item, slots: item.slots.filter((_, i) => i !== slotIndex) }
-        : item
-    ).filter((item) => item.slots.length > 0); 
+    const updatedAvailability = availability
+      .map((item) =>
+        item.date === dateToRemove
+          ? { ...item, slots: item.slots.filter((_, i) => i !== slotIndex) }
+          : item
+      )
+      .filter((item) => item.slots.length > 0); 
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorId);
@@ -126,13 +151,19 @@ const SetAvailability = ({ doctorData }) => {
               <ul>
                 {item.slots.map((slot, slotIndex) => (
                   <li key={slotIndex}>
-                    {slot.startTime} - {slot.endTime}
-                    <button
-                      onClick={() => handleRemoveTimeSlot(item.date, slotIndex)}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Remove
-                    </button>
+                    {slot.startTime} - {slot.endTime}{" "}
+                    {isSlotBooked(item.date, slot.startTime, slot.endTime) ? (
+                      <span style={{ color: "red", marginLeft: "10px" }}>
+                        (Booked)
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleRemoveTimeSlot(item.date, slotIndex)}
+                        style={{ marginLeft: "10px" }}
+                      >
+                        Remove
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
