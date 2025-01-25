@@ -24,7 +24,7 @@ const Profile = ({ doctorData }) => {
     e.preventDefault();
 
     try {
-      const doctorDocRef = doc(db, "doctors", doctorData.doctorId);
+      const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
 
       await updateDoc(doctorDocRef, {
         email: formData.email,
@@ -162,7 +162,7 @@ const Profile = ({ doctorData }) => {
 
 Profile.propTypes = {
     doctorData: PropTypes.shape({
-      doctorId: PropTypes.string.isRequired, 
+      doctorID: PropTypes.string.isRequired, 
       email: PropTypes.string, 
       specialization: PropTypes.string, 
       clinicName: PropTypes.string, 

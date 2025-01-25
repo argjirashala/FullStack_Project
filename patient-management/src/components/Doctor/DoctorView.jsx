@@ -4,7 +4,7 @@ import Home from "./Home";
 import SetAvailability from "./Availability";
 import UpcomingAppointments from "./UpcomingAppointments";
 import ListOfAppointments from "./ListOfAppointments";
-import Profile from "./Profile"; 
+import Profile from "./Profile";
 
 const DoctorView = () => {
   const [doctorData, setDoctorData] = useState(null);
@@ -15,7 +15,7 @@ const DoctorView = () => {
     if (storedDoctorData) {
       setDoctorData(JSON.parse(storedDoctorData));
     } else {
-      navigate("/doctor-login");
+      navigate("/doctor-login"); // Redirect to login if no data is found
     }
   }, [navigate]);
 
@@ -26,7 +26,7 @@ const DoctorView = () => {
   };
 
   if (!doctorData) {
-    return <div>Loading...</div>;
+    return <div>Loading doctor data...</div>; // Ensure no components render without doctorData
   }
 
   return (

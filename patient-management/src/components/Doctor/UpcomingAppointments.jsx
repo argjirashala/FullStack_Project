@@ -10,7 +10,7 @@ const UpcomingAppointments = ({ doctorData }) => {
     const fetchAppointments = async () => {
       try {
         const appointmentsCollection = collection(db, "appointments");
-        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorId));
+        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
         const querySnapshot = await getDocs(q);
 
         const fetchedAppointments = querySnapshot.docs.map((doc) => ({
@@ -31,7 +31,7 @@ const UpcomingAppointments = ({ doctorData }) => {
     };
 
     fetchAppointments();
-  }, [doctorData.doctorId]);
+  }, [doctorData.doctorID]);
 
   return (
     <div>
@@ -60,7 +60,7 @@ const UpcomingAppointments = ({ doctorData }) => {
 UpcomingAppointments.propTypes = {
   doctorData: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    doctorId: PropTypes.string.isRequired,
+    doctorID: PropTypes.string.isRequired,
   }).isRequired,
 };
 

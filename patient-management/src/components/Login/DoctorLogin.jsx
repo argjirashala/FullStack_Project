@@ -13,7 +13,8 @@ const DoctorLogin = () => {
 
     try {
       const doctorsCollectionRef = collection(db, "doctors");
-      const q = query(doctorsCollectionRef, where("doctorId", "==", doctorId));
+      // Correct the field name to match Firestore
+      const q = query(doctorsCollectionRef, where("doctorID", "==", doctorId));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
@@ -22,8 +23,10 @@ const DoctorLogin = () => {
         if (password === doctorData.password) {
           console.log("Doctor logged in successfully:", doctorData);
 
+          // Save doctor data in localStorage
           localStorage.setItem("doctorData", JSON.stringify(doctorData));
 
+          // Navigate to the doctor's home page
           navigate("/doctor/home");
         } else {
           alert("Invalid password. Please try again.");
@@ -42,9 +45,7 @@ const DoctorLogin = () => {
       <form onSubmit={handleLogin}>
         <h2>Doctor Login</h2>
 
-        <label htmlFor="doctorId">
-          Doctor ID
-        </label>
+        <label htmlFor="doctorId">Doctor ID</label>
         <br />
         <input
           type="text"
@@ -57,9 +58,7 @@ const DoctorLogin = () => {
         <br />
         <br />
 
-        <label htmlFor="password">
-          Password
-        </label>
+        <label htmlFor="password">Password</label>
         <br />
         <input
           type="password"
@@ -72,9 +71,7 @@ const DoctorLogin = () => {
         <br />
         <br />
 
-        <button type="submit">
-          Login
-        </button>
+        <button type="submit">Login</button>
       </form>
     </div>
   );

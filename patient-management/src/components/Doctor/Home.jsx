@@ -11,9 +11,11 @@ const Home = ({ doctorData }) => {
 
   useEffect(() => {
     const fetchTodaysAppointments = async () => {
+      if (!doctorData?.doctorID) return; // Guard clause to prevent invalid queries
+
       try {
         const appointmentsCollection = collection(db, "appointments");
-        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorId));
+        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
         const querySnapshot = await getDocs(q);
 
         const fetchedAppointments = querySnapshot.docs.map((doc) => ({
@@ -22,7 +24,6 @@ const Home = ({ doctorData }) => {
         }));
 
         const today = new Date().toISOString().split("T")[0];
-
         const filteredAppointments = fetchedAppointments.filter(
           (appointment) => appointment.date === today
         );
@@ -34,7 +35,7 @@ const Home = ({ doctorData }) => {
     };
 
     fetchTodaysAppointments();
-  }, [doctorData.doctorId]);
+  }, [doctorData?.doctorID]);
 
   const handleSaveDiagnosisAndTherapy = async (appointmentId) => {
     try {
@@ -69,7 +70,7 @@ const Home = ({ doctorData }) => {
   return (
     <div>
       <h1>Welcome, Dr. {doctorData?.name}!</h1>
-      <p>Doctor ID: {doctorData?.doctorId}</p>
+      <p>Doctor ID: {doctorData?.doctorID}</p>
 
       <h2>Today&apos;s Appointments</h2>
       {todaysAppointments.length > 0 ? (
@@ -140,8 +141,9 @@ const Home = ({ doctorData }) => {
 Home.propTypes = {
   doctorData: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    doctorId: PropTypes.string.isRequired,
+    doctorID: PropTypes.string.isRequired,
   }).isRequired,
 };
 
 export default Home;
+

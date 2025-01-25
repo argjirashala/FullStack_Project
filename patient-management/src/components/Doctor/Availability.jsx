@@ -12,32 +12,35 @@ const SetAvailability = ({ doctorData }) => {
 
   useEffect(() => {
     const fetchAvailabilityAndBookedSlots = async () => {
+      if (!doctorData?.doctorID) return; 
+  
       try {
-        const doctorDocRef = doc(db, "doctors", doctorData.doctorId);
+        const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
         const doctorSnapshot = await getDoc(doctorDocRef);
-
+  
         if (doctorSnapshot.exists()) {
           const data = doctorSnapshot.data();
           setAvailability(data.availability || []);
         }
-
+  
         const appointmentsCollection = collection(db, "appointments");
-        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorId));
+        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
         const querySnapshot = await getDocs(q);
-
+  
         const booked = querySnapshot.docs.map((doc) => ({
           date: doc.data().date,
           time: doc.data().time,
         }));
-
+  
         setBookedSlots(booked);
       } catch (error) {
         console.error("Error fetching availability or booked slots:", error);
       }
     };
-
+  
     fetchAvailabilityAndBookedSlots();
-  }, [doctorData.doctorId]);
+  }, [doctorData?.doctorID]);
+  
 
   const isSlotBooked = (date, startTime, endTime) => {
     return bookedSlots.some(
@@ -66,7 +69,7 @@ const SetAvailability = ({ doctorData }) => {
     }
 
     try {
-      const doctorDocRef = doc(db, "doctors", doctorData.doctorId);
+      const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
       await updateDoc(doctorDocRef, { availability: updatedAvailability });
 
       alert("Time slot added successfully!");
@@ -89,7 +92,7 @@ const SetAvailability = ({ doctorData }) => {
       .filter((item) => item.slots.length > 0); 
 
     try {
-      const doctorDocRef = doc(db, "doctors", doctorData.doctorId);
+      const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
       await updateDoc(doctorDocRef, { availability: updatedAvailability });
 
       alert("Time slot removed successfully!");
@@ -178,7 +181,7 @@ const SetAvailability = ({ doctorData }) => {
 SetAvailability.propTypes = {
   doctorData: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    doctorId: PropTypes.string.isRequired,
+    doctorID: PropTypes.string.isRequired,
   }).isRequired,
 };
 
