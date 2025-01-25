@@ -12,6 +12,10 @@ const Profile = ({ doctorData }) => {
     phone: doctorData.phone || "",
   });
 
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -20,7 +24,7 @@ const Profile = ({ doctorData }) => {
     }));
   };
 
-  const handleSave = async (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
 
     try {
@@ -41,10 +45,40 @@ const Profile = ({ doctorData }) => {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    if (currentPassword !== doctorData.password) {
+      alert("Current password is incorrect.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      alert("New passwords do not match.");
+      return;
+    }
+
+    try {
+      const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
+
+      await updateDoc(doctorDocRef, {
+        password: newPassword,
+      });
+
+      alert("Password updated successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert("An error occurred while changing your password.");
+    }
+  };
+
   return (
     <div>
       <h1>Update Your Profile</h1>
-      <form onSubmit={handleSave}>
+      <form onSubmit={handleSaveProfile}>
         <label>Email Address</label>
         <br />
         <input
@@ -118,18 +152,6 @@ const Profile = ({ doctorData }) => {
         <br />
         <br />
 
-        <label>Clinic Name</label>
-        <br />
-        <input
-          type="text"
-          name="clinicName"
-          value={formData.clinicName}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <br />
-
         <label>Clinic Address</label>
         <br />
         <input
@@ -156,19 +178,60 @@ const Profile = ({ doctorData }) => {
 
         <button type="submit">Save Profile</button>
       </form>
+
+      <hr />
+
+      <h2>Change Password</h2>
+      <form onSubmit={handleChangePassword}>
+        <label>Current Password</label>
+        <br />
+        <input
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          required
+        />
+        <br />
+        <br />
+
+        <label>New Password</label>
+        <br />
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+        />
+        <br />
+        <br />
+
+        <label>Confirm New Password</label>
+        <br />
+        <input
+          type="password"
+          value={confirmNewPassword}
+          onChange={(e) => setConfirmNewPassword(e.target.value)}
+          required
+        />
+        <br />
+        <br />
+
+        <button type="submit">Change Password</button>
+      </form>
     </div>
   );
 };
 
 Profile.propTypes = {
-    doctorData: PropTypes.shape({
-      doctorID: PropTypes.string.isRequired, 
-      email: PropTypes.string, 
-      specialization: PropTypes.string, 
-      clinicName: PropTypes.string, 
-      clinicAddress: PropTypes.string,
-      phone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), 
-    }).isRequired,
-  };
+  doctorData: PropTypes.shape({
+    doctorID: PropTypes.string.isRequired,
+    email: PropTypes.string,
+    specialization: PropTypes.string,
+    clinicName: PropTypes.string,
+    clinicAddress: PropTypes.string,
+    phone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    password: PropTypes.string.isRequired,
+  }).isRequired,
+};
 
 export default Profile;
