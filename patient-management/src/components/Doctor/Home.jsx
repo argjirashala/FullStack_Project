@@ -11,7 +11,7 @@ const Home = ({ doctorData }) => {
 
   useEffect(() => {
     const fetchTodaysAppointments = async () => {
-      if (!doctorData?.doctorID) return; // Guard clause to prevent invalid queries
+      if (!doctorData?.doctorID) return; 
 
       try {
         const appointmentsCollection = collection(db, "appointments");

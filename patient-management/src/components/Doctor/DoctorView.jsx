@@ -15,7 +15,7 @@ const DoctorView = () => {
     if (storedDoctorData) {
       setDoctorData(JSON.parse(storedDoctorData));
     } else {
-      navigate("/doctor-login"); // Redirect to login if no data is found
+      navigate("/doctor-login");
     }
   }, [navigate]);
 
@@ -26,7 +26,7 @@ const DoctorView = () => {
   };
 
   if (!doctorData) {
-    return <div>Loading doctor data...</div>; // Ensure no components render without doctorData
+    return <div>Loading doctor data...</div>; 
   }
 
   return (
