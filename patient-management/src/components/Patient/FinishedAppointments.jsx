@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import axios from "axios";
 
 const FinishedAppointments = ({ user }) => {
   const [appointments, setAppointments] = useState([]);
@@ -20,7 +21,6 @@ const FinishedAppointments = ({ user }) => {
           }))
           .filter((appointment) => appointment.diagnosis && appointment.therapy);
 
-        // Fetch doctor's name and surname for each appointment
         const enhancedAppointments = await Promise.all(
           finishedAppointments.map(async (appointment) => {
             try {
@@ -53,6 +53,30 @@ const FinishedAppointments = ({ user }) => {
     fetchFinishedAppointments();
   }, [user.personalId]);
 
+  const handleDownloadFile = async (fileUrl, fileType) => {
+    try {
+      const response = await axios.get(fileUrl, {
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      const fileExtension = fileType?.split("/")[1] || "file";
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `download.${fileExtension}`);
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("An error occurred while downloading the file.");
+    }
+  };
+
   return (
     <div>
       <h1>Finished Appointments</h1>
@@ -72,6 +96,14 @@ const FinishedAppointments = ({ user }) => {
               <p>
                 <strong>Therapy:</strong> {appointment.therapy}
               </p>
+              {appointment.fileUrl && (
+                <button
+                  onClick={() => handleDownloadFile(appointment.fileUrl, appointment.fileType)}
+                  style={{ marginTop: "10px" }}
+                >
+                  Download File
+                </button>
+              )}
             </li>
           ))}
         </ul>

@@ -2,16 +2,25 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import axios from "axios";
 
 const Home = ({ doctorData }) => {
   const [todaysAppointments, setTodaysAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [diagnosis, setDiagnosis] = useState("");
   const [therapy, setTherapy] = useState("");
+  const [file, setFile] = useState(null);
+
+  const cloudinaryConfig = {
+    cloudName: import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME,
+    uploadPreset: import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET,
+    imageUploadUrl: import.meta.env.VITE_APP_CLOUDINARY_IMAGE_UPLOAD_URL,
+    rawUploadUrl: import.meta.env.VITE_APP_CLOUDINARY_RAW_UPLOAD_URL,
+  };
 
   useEffect(() => {
     const fetchTodaysAppointments = async () => {
-      if (!doctorData?.doctorID) return; 
+      if (!doctorData?.doctorID) return;
 
       try {
         const appointmentsCollection = collection(db, "appointments");
@@ -37,34 +46,94 @@ const Home = ({ doctorData }) => {
     fetchTodaysAppointments();
   }, [doctorData?.doctorID]);
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const uploadFileToCloudinary = async () => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", cloudinaryConfig.uploadPreset);
+    formData.append("cloud_name", cloudinaryConfig.cloudName);
+
+    try {
+      const uploadEndpoint = file.type === "application/pdf"
+        ? cloudinaryConfig.rawUploadUrl
+        : cloudinaryConfig.imageUploadUrl;
+
+      const response = await axios.post(uploadEndpoint, formData);
+      return response.data.secure_url;
+    } catch (error) {
+      console.error("Error uploading file to Cloudinary:", error);
+      alert("File upload failed.");
+      return null;
+    }
+  };
+
   const handleSaveDiagnosisAndTherapy = async (appointmentId) => {
     try {
+      const fileUrl = await uploadFileToCloudinary();
+  
       const appointmentDocRef = doc(db, "appointments", appointmentId);
-      await updateDoc(appointmentDocRef, { diagnosis, therapy });
-
-      alert("Diagnosis and therapy saved successfully!");
-
+      await updateDoc(appointmentDocRef, {
+        diagnosis,
+        therapy,
+        fileUrl,
+        fileType: file ? file.type : null, 
+      });
+  
+      alert("Diagnosis, therapy, and file saved successfully!");
+  
       setTodaysAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
           appointment.id === appointmentId
-            ? { ...appointment, diagnosis, therapy }
+            ? { ...appointment, diagnosis, therapy, fileUrl, fileType: file?.type || null }
             : appointment
         )
       );
-
+  
       setSelectedAppointment(null);
       setDiagnosis("");
       setTherapy("");
+      setFile(null);
     } catch (error) {
       console.error("Error saving diagnosis and therapy:", error);
-      alert("An error occurred while saving the diagnosis and therapy.");
+      alert("An error occurred while saving the diagnosis, therapy, or file.");
     }
   };
+  
+  const handleDownloadFile = async (fileUrl, fileType) => {
+    try {
+      const response = await axios.get(fileUrl, {
+        responseType: "blob", 
+      });
+  
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      const fileExtension = fileType?.split("/")[1] || "file";
+  
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `download.${fileExtension}`);
+      document.body.appendChild(link);
+      link.click();
+  
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("An error occurred while downloading the file.");
+    }
+  };
+  
 
   const handleViewOrEdit = (appointment) => {
     setSelectedAppointment(appointment.id);
     setDiagnosis(appointment.diagnosis || "");
     setTherapy(appointment.therapy || "");
+    setFile(null);
   };
 
   return (
@@ -87,6 +156,14 @@ const Home = ({ doctorData }) => {
                   ? "View/Update Diagnosis and Therapy"
                   : "Add Diagnosis and Therapy"}
               </button>
+              {appointment.fileUrl && (
+                <button
+                  style={{ marginLeft: "10px" }}
+                  onClick={() => handleDownloadFile(appointment.fileUrl, appointment.fileType)}
+                >
+                  Download File
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -119,6 +196,16 @@ const Home = ({ doctorData }) => {
           />
           <br />
           <br />
+          <label htmlFor="file">Upload File (PDF, PNG, JPG, JPEG):</label>
+          <br />
+          <input
+            type="file"
+            id="file"
+            accept=".pdf,.png,.jpg,.jpeg"
+            onChange={handleFileChange}
+          />
+          <br />
+          <br />
           <button onClick={() => handleSaveDiagnosisAndTherapy(selectedAppointment)}>
             Save
           </button>
@@ -128,6 +215,7 @@ const Home = ({ doctorData }) => {
               setSelectedAppointment(null);
               setDiagnosis("");
               setTherapy("");
+              setFile(null);
             }}
           >
             Cancel
@@ -146,4 +234,3 @@ Home.propTypes = {
 };
 
 export default Home;
-
