@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase-config";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import "./DoctorLogin.css";
 
 const DoctorLogin = () => {
   const [doctorId, setDoctorId] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -13,7 +15,6 @@ const DoctorLogin = () => {
 
     try {
       const doctorsCollectionRef = collection(db, "doctors");
-      // Correct the field name to match Firestore
       const q = query(doctorsCollectionRef, where("doctorID", "==", doctorId));
       const querySnapshot = await getDocs(q);
 
@@ -23,56 +24,59 @@ const DoctorLogin = () => {
         if (password === doctorData.password) {
           console.log("Doctor logged in successfully:", doctorData);
 
-          // Save doctor data in localStorage
           localStorage.setItem("doctorData", JSON.stringify(doctorData));
 
-          // Navigate to the doctor's home page
           navigate("/doctor/home");
         } else {
-          alert("Invalid password. Please try again.");
+          setError("Invalid password. Please try again.");
         }
       } else {
-        alert("Doctor ID not found. Please check your credentials.");
+        setError("Doctor ID not found. Please check your credentials."); 
       }
     } catch (error) {
       console.error("Error during login:", error);
-      alert("An error occurred. Please try again.");
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
-    <div>
-      <form onSubmit={handleLogin}>
-        <h2>Doctor Login</h2>
+    <div className="doctor-login-container">
+      <div className="doctor-login-box">
+        <h2 className="doctor-login-title">Doctor Login</h2>
+        {error && <p className="doctor-login-error">{error}</p>} 
+        <form onSubmit={handleLogin} className="doctor-login-form">
+          <label htmlFor="doctorId" className="doctor-login-label">
+            Doctor ID
+          </label>
+          <input
+            type="text"
+            id="doctorId"
+            className="doctor-login-input"
+            value={doctorId}
+            onChange={(e) => setDoctorId(e.target.value)}
+            placeholder="Enter your Doctor ID"
+            required
+          />
 
-        <label htmlFor="doctorId">Doctor ID</label>
-        <br />
-        <input
-          type="text"
-          id="doctorId"
-          value={doctorId}
-          onChange={(e) => setDoctorId(e.target.value)}
-          placeholder="Enter your Doctor ID"
-          required
-        />
-        <br />
-        <br />
-
-        <label htmlFor="password">Password</label>
-        <br />
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your Password"
-          required
-        />
-        <br />
-        <br />
-
-        <button type="submit">Login</button>
-      </form>
+          <label htmlFor="password" className="doctor-login-label">
+            Password
+          </label>
+          <div className="doctor-password-container">
+            <input
+              type="password"
+              id="password"
+              className="doctor-login-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your Password"
+              required
+            />
+          </div>
+          <button type="submit" className="doctor-login-button">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
