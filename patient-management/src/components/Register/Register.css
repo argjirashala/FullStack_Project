@@ -1,0 +1,105 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e3f2fd;
+  padding: 20px;
+}
+
+.register-box {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.register-title {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #ff8c00;
+}
+
+.register-success {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.login-link {
+  color: #ff8c00;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.login-link:hover {
+  color: #e67e00;
+}
+
+.register-error {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.register-label {
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.register-input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.register-input:focus {
+  outline: none;
+  border-color: #ff8c00;
+  box-shadow: 0 0 5px #ff8c00;
+}
+
+.register-button {
+  background-color: #ff8c00;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.register-button:hover {
+  background-color: #e67e00;
+}
+
+.login-link {
+  color: #ff8c00;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.login-link:hover {
+  text-decoration: none;
+  color: #e67e00;
+}

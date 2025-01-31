@@ -46,22 +46,27 @@ const App = () => {
   return (
     <div>
       <Routes>
-        <Route
-          path="/login"
-          element={!user ? <Login /> : <Navigate to="/patient/home" />}
-        />
-        <Route
-          path="/register"
-          element={!user ? <Register /> : <Navigate to="/patient/home" />}
-        />
-        <Route
-          path="/patient/*"
-          element={user ? <PatientView user={user} /> : <Navigate to="/login" />}
-        />
-        <Route path="*" element={<Navigate to="/login" />} />
-        <Route path="/doctor-login" element={<DoctorLogin />} />
-        <Route path="/doctor/*" element={<DoctorView />} /> {/* DoctorView */}
-      </Routes>
+  <Route
+    path="/login"
+    element={<Login />}
+  />
+  
+  <Route
+    path="/signup"
+    element={<Register />} 
+  />
+
+  <Route
+    path="/patient/*"
+    element={user ? <PatientView user={user} /> : <Navigate to="/login" />}
+  />
+
+  <Route path="/doctor-login" element={<DoctorLogin />} />
+  <Route path="/doctor/*" element={<DoctorView />} />
+  
+  <Route path="*" element={<Navigate to="/login" />} />
+</Routes>
+
     </div>
   );
 };

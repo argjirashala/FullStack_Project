@@ -76,7 +76,7 @@ const Login = () => {
       <div className="login-box">
         <p className="signup-text">
           Don&apos;t have an account?{" "}
-          <a href="/register" className="signup-link">
+          <a href="/signup" className="signup-link">
             Sign up
           </a>
         </p>
