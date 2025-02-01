@@ -2,15 +2,20 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import "./Home.css";
 
 const Home = ({ user }) => {
   const [specialization, setSpecialization] = useState("");
   const [doctors, setDoctors] = useState([]);
-  const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [reason, setReason] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState(""); 
+
+  const todayDate = new Date().toISOString().split("T")[0];
 
   const handleSpecializationChange = async (e) => {
     const selectedSpecialization = e.target.value;
@@ -19,10 +24,7 @@ const Home = ({ user }) => {
     if (selectedSpecialization) {
       try {
         const doctorsCollection = collection(db, "doctors");
-        const q = query(
-          doctorsCollection,
-          where("specialization", "==", selectedSpecialization)
-        );
+        const q = query(doctorsCollection, where("specialization", "==", selectedSpecialization));
         const querySnapshot = await getDocs(q);
 
         const fetchedDoctors = querySnapshot.docs.map((doc) => ({
@@ -39,27 +41,27 @@ const Home = ({ user }) => {
     }
   };
 
-  const handleDoctorChange = (e) => {
-    setSelectedDoctor(e.target.value);
-    setSelectedDate(""); 
-    setAvailableSlots([]);
-    setSelectedTimeSlot("");
-  };
-
   const handleDateChange = async (e) => {
-    const selectedDate = e.target.value;
-    setSelectedDate(selectedDate);
+    const date = e.target.value;
+    setSelectedDate(date);
 
-    if (selectedDoctor && selectedDate) {
+    if (new Date(date) < new Date(todayDate)) {
+      setFeedbackMessage("You cannot select a date in the past.");
+      setSelectedDate("");
+      return;
+    }
+
+    setFeedbackMessage(""); 
+
+    if (selectedDoctor && date) {
       try {
-        const doctorDocRef = doc(db, "doctors", selectedDoctor);
+        const doctorDocRef = doc(db, "doctors", selectedDoctor.id);
         const doctorSnapshot = await getDoc(doctorDocRef);
 
         if (doctorSnapshot.exists()) {
           const doctorData = doctorSnapshot.data();
-
           const availabilityForDate = doctorData.availability.find(
-            (item) => item.date === selectedDate
+            (item) => new Date(item.date).toISOString().split("T")[0] === date
           );
 
           if (availabilityForDate) {
@@ -68,25 +70,22 @@ const Home = ({ user }) => {
             const appointmentsCollection = collection(db, "appointments");
             const appointmentQuery = query(
               appointmentsCollection,
-              where("doctorId", "==", selectedDoctor),
-              where("date", "==", selectedDate)
+              where("doctorId", "==", selectedDoctor.id),
+              where("date", "==", date)
             );
             const appointmentSnapshot = await getDocs(appointmentQuery);
 
-            const bookedSlots = appointmentSnapshot.docs.map(
-              (doc) => doc.data().time
-            );
-
+            const bookedSlots = appointmentSnapshot.docs.map((doc) => doc.data().time);
             const freeSlots = allSlots.filter(
               (slot) => !bookedSlots.includes(`${slot.startTime} - ${slot.endTime}`)
             );
 
             setAvailableSlots(freeSlots);
           } else {
-            setAvailableSlots([]); 
+            setAvailableSlots([]);
           }
         } else {
-          console.error("Doctor not found");
+          console.error("Doctor not found.");
         }
       } catch (error) {
         console.error("Error fetching availability:", error);
@@ -95,8 +94,16 @@ const Home = ({ user }) => {
   };
 
   const handleBookAppointment = async () => {
-    if (!selectedTimeSlot || !reason) {
-      alert("Please select a time slot and enter the reason for the appointment.");
+    if (!selectedDate || new Date(selectedDate) < new Date(todayDate)) {
+      setFeedbackMessage("Please select a valid date.");
+      return;
+    }
+    if (!selectedTimeSlot) {
+      setFeedbackMessage("Please select a time slot.");
+      return;
+    }
+    if (!reason) {
+      setFeedbackMessage("Please provide a reason for the appointment.");
       return;
     }
 
@@ -105,7 +112,7 @@ const Home = ({ user }) => {
         date: selectedDate,
         time: selectedTimeSlot,
         patientId: user.personalId,
-        doctorId: selectedDoctor,
+        doctorId: selectedDoctor.id,
         patientFirstName: user.firstName,
         patientLastName: user.lastName,
         reason,
@@ -114,45 +121,40 @@ const Home = ({ user }) => {
       const appointmentsCollection = collection(db, "appointments");
       const docRef = await addDoc(appointmentsCollection, appointmentData);
 
-      alert(`Appointment booked successfully! Appointment ID: ${docRef.id}`);
-      setSelectedDoctor("");
+      setFeedbackMessage(`Appointment booked successfully! Appointment ID: ${docRef.id}`);
+      setTimeout(() => setShowModal(false), 3000); 
+      setSelectedDoctor(null);
       setSelectedDate("");
       setAvailableSlots([]);
       setSelectedTimeSlot("");
       setReason("");
     } catch (error) {
       console.error("Error booking appointment:", error);
-      alert("An error occurred while booking the appointment. Please try again.");
+      setFeedbackMessage("An error occurred while booking the appointment. Please try again.");
     }
   };
 
   return (
-    <div>
+    <div className="home-container">
       <h1>Welcome, {user.firstName}!</h1>
-      <p>Your Personal ID: {user.personalId}</p>
-      <p>Your Email: {user.email}</p>
 
-      <div>
+      <div className="appointment-section">
         <h2>Book an Appointment</h2>
-        <label htmlFor="specialization">Select Specialization</label>
-        <br />
+
+        <label htmlFor="specialization" className="home-label">Select Specialization</label>
         <select
           id="specialization"
           value={specialization}
           onChange={handleSpecializationChange}
-          required
+          className="home-input"
         >
-          <option value="">--Select Specialization--</option>
-          <option value="AerospaceMedicineSpecialist">
-            Aerospace Medicine Specialist
-          </option>
+                    <option value="">--Select Specialization--</option>
+          <option value="AerospaceMedicineSpecialist">Aerospace Medicine Specialist</option>
           <option value="Allergist">Allergist</option>
           <option value="Anaesthesiologist">Anaesthesiologist</option>
           <option value="Andrologist">Andrologist</option>
           <option value="Cardiologist">Cardiologist</option>
-          <option value="Cardiac Electrophysiologist">
-            Cardiac Electrophysiologist
-          </option>
+          <option value="Cardiac Electrophysiologist">Cardiac Electrophysiologist</option>
           <optgroup label="DentalCare">
             <option value="GeneralDentist">General Dentist</option>
             <option value="Pedodontist">Pedodontist</option>
@@ -164,31 +166,23 @@ const Home = ({ user }) => {
           </optgroup>
           <option value="Dermatologist">Dermatologist</option>
           <option value="Dietitian/Dietician">Dietitian/Dietician</option>
-          <option value="EmergencyRoomDoctor">
-            Emergency Room (ER) Doctor
-          </option>
+          <option value="EmergencyRoomDoctor">Emergency Room (ER) Doctor</option>
           <option value="Endocrinologist">Endocrinologist</option>
           <option value="Epidemiologist">Epidemiologist</option>
-          <option value="Family Medicine Physician">
-            Family Medicine Physician
-          </option>
+          <option value="Family Medicine Physician">Family Medicine Physician</option>
           <option value="Gastroenterologist">Gastroenterologist</option>
           <option value="Geriatrician">Geriatrician</option>
           <option value="Hyperbarichysician">Hyperbaric Physician</option>
           <option value="Hematologist">Hematologist</option>
           <option value="Hepatologist">Hepatologist</option>
           <option value="Immunologist">Immunologist</option>
-          <option value="InfectiousDiseaseSpecialist">
-            Infectious Disease Specialist
-          </option>
+          <option value="InfectiousDiseaseSpecialist">Infectious Disease Specialist</option>
           <option value="Intensivist">Intensivist</option>
           <option value="Neonatologist">Neonatologist</option>
           <option value="Nephrologist">Nephrologist</option>
           <option value="Neurologist">Neurologist</option>
           <option value="Neurosurgeon">Neurosurgeon</option>
-          <option value="Obstetrician/Gynecologist">
-            Obstetrician/Gynecologist
-          </option>
+          <option value="Obstetrician/Gynecologist">Obstetrician/Gynecologist</option>
           <option value="Oncologist">Oncologist</option>
           <option value="Ophthalmologist">Ophthalmologist</option>
           <option value="Orthopedist">Orthopedist</option>
@@ -205,48 +199,47 @@ const Home = ({ user }) => {
           <option value="Veterinarian">Veterinarian</option>
         </select>
 
-        <br />
-        <br />
+        <div className="doctor-list">
+          {doctors.map((doctor) => (
+            <div className="doctor-card" key={doctor.id}>
+              <h3>Dr. {doctor.name} {doctor.surname}</h3>
+              <p>Email: {doctor.email}</p>
+              <p>Clinic: {doctor.clinicName}</p>
+              <p>Address: {doctor.clinicAddress}</p>
+              <button
+                className="book-appointment-button"
+                onClick={() => {
+                  setSelectedDoctor(doctor);
+                  setShowModal(true);
+                }}
+              >
+                Book Appointment
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        {specialization && (
-          <div>
-            <label htmlFor="doctors">Select Doctor</label>
-            <br />
-            <select
-              id="doctors"
-              value={selectedDoctor}
-              onChange={handleDoctorChange}
-              required
-            >
-              <option value="">--Select Doctor--</option>
-              {doctors.map((doctor) => (
-                <option key={doctor.id} value={doctor.id}>
-                  {doctor.name} {doctor.surname} ({doctor.specialization})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        <br />
-
-        {selectedDoctor && (
-          <div>
-            <label htmlFor="date">Select Date</label>
-            <br />
-            <input type="date" id="date" value={selectedDate} onChange={handleDateChange} />
-          </div>
-        )}
-        <br />
-
-        {selectedDate && availableSlots.length > 0 && (
-          <div>
-            <label htmlFor="timeSlot">Select Time Slot</label>
-            <br />
+      {showModal && selectedDoctor && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Book Appointment with Dr. {selectedDoctor.name}</h2>
+            {feedbackMessage && <p className="feedback-message">{feedbackMessage}</p>} 
+            <label htmlFor="date" className="home-label">Select Date</label>
+            <input
+              type="date"
+              id="date"
+              className="home-input"
+              value={selectedDate}
+              min={todayDate}
+              onChange={handleDateChange}
+            />
+            <label htmlFor="timeSlot" className="home-label">Select Time Slot</label>
             <select
               id="timeSlot"
+              className="home-input"
               value={selectedTimeSlot}
               onChange={(e) => setSelectedTimeSlot(e.target.value)}
-              required
             >
               <option value="">--Select Time Slot--</option>
               {availableSlots.map((slot, index) => (
@@ -255,26 +248,24 @@ const Home = ({ user }) => {
                 </option>
               ))}
             </select>
-          </div>
-        )}
-        <br />
-
-        {selectedDate && selectedTimeSlot && (
-          <div>
-            <label htmlFor="reason">Reason for Appointment</label>
-            <br />
+            <label htmlFor="reason" className="home-label">Reason for Appointment</label>
             <textarea
               id="reason"
+              className="home-textarea"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              required
             />
-            <br />
-            <br />
-            <button onClick={handleBookAppointment}>Book Appointment</button>
+            <div className="modal-buttons">
+              <button className="modal-button" onClick={handleBookAppointment}>
+                Confirm Booking
+              </button>
+              <button className="modal-button-cancel" onClick={() => setShowModal(false)}>
+                Cancel
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

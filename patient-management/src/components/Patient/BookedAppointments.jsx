@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import "./BookedAppointments.css";
 
 const BookedAppointments = ({ user }) => {
   const [appointments, setAppointments] = useState([]);
@@ -21,8 +22,7 @@ const BookedAppointments = ({ user }) => {
             ...doc.data(),
           }))
           .filter((appointment) => appointment.date >= today);
-
-        // Fetch doctor's name and surname for each appointment
+          
         const enhancedAppointments = await Promise.all(
           bookedAppointments.map(async (appointment) => {
             try {
@@ -56,26 +56,33 @@ const BookedAppointments = ({ user }) => {
   }, [user.personalId]);
 
   return (
-    <div>
-      <h1>Booked Appointments</h1>
-      <p>Manage your appointments here, {user?.firstName}.</p>
+    <div className="booked-appointments-container">
+      <h1 className="booked-appointments-title">Booked Appointments</h1>
+      <p className="booked-appointments-description">
+        Manage your appointments here, {user?.firstName}.
+      </p>
 
       {appointments.length > 0 ? (
-        <ul>
+        <div className="appointments-list">
           {appointments.map((appointment) => (
-            <li key={appointment.id}>
-              <strong>Date:</strong> {appointment.date} <strong>Time:</strong> {appointment.time}
-              <p>
-                <strong>Doctor:</strong> {appointment.doctorName} {appointment.doctorSurname}
+            <div className="appointment-card" key={appointment.id}>
+              <h3 className="appointment-card-title">
+                Appointment with Dr. {appointment.doctorName} {appointment.doctorSurname}
+              </h3>
+              <p className="appointment-card-detail">
+                <strong>Date:</strong> {appointment.date}
               </p>
-              <p>
+              <p className="appointment-card-detail">
+                <strong>Time:</strong> {appointment.time}
+              </p>
+              <p className="appointment-card-detail">
                 <strong>Reason:</strong> {appointment.reason}
               </p>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
-        <p>No booked appointments found.</p>
+        <p className="no-appointments-message">No booked appointments found.</p>
       )}
     </div>
   );

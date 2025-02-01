@@ -1,0 +1,130 @@
+.finished-appointments-container {
+  padding: 20px;
+  background-color: #e3f2fd;
+  min-height: 100vh;
+}
+
+.finished-appointments-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.finished-appointments-description {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.appointments-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.appointment-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+}
+
+.appointment-card-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.appointment-card-detail {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.show-diagnosis-button {
+  background-color: #ff8c00;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.show-diagnosis-button:hover {
+  background-color: #e67e00;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.download-file-button {
+  background-color: #ff8c00;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  flex-grow: 0;
+}
+
+.download-file-button:hover {
+  background-color: #e67e00;
+}
+
+.close-modal-x-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-modal-x-button:hover {
+  color: #ff8c00;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .appointments-list {
+    justify-content: center;
+  }
+
+  .appointment-card {
+    width: 90%;
+  }
+}

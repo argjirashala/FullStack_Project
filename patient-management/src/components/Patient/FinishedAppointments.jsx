@@ -3,9 +3,12 @@ import PropTypes from "prop-types";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import axios from "axios";
+import "./FinishedAppointments.css";
 
 const FinishedAppointments = ({ user }) => {
   const [appointments, setAppointments] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchFinishedAppointments = async () => {
@@ -55,12 +58,9 @@ const FinishedAppointments = ({ user }) => {
 
   const handleDownloadFile = async (fileUrl, fileType) => {
     try {
-      const response = await axios.get(fileUrl, {
-        responseType: "blob",
-      });
+      const response = await axios.get(fileUrl, { responseType: "blob" });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-
       const fileExtension = fileType?.split("/")[1] || "file";
 
       const link = document.createElement("a");
@@ -78,37 +78,76 @@ const FinishedAppointments = ({ user }) => {
   };
 
   return (
-    <div>
-      <h1>Finished Appointments</h1>
-      <p>Review your past appointments, {user?.firstName}.</p>
+    <div className="finished-appointments-container">
+      <h1 className="finished-appointments-title">Finished Appointments</h1>
+      <p className="finished-appointments-description">
+        Review your past appointments, {user?.firstName}.
+      </p>
 
       {appointments.length > 0 ? (
-        <ul>
+        <div className="appointments-list">
           {appointments.map((appointment) => (
-            <li key={appointment.id}>
-              <strong>Date:</strong> {appointment.date} <strong>Time:</strong> {appointment.time}
-              <p>
-                <strong>Doctor:</strong> {appointment.doctorName} {appointment.doctorSurname}
+            <div className="appointment-card" key={appointment.id}>
+              <h3 className="appointment-card-title">
+                Appointment with Dr. {appointment.doctorName} {appointment.doctorSurname}
+              </h3>
+              <p className="appointment-card-detail">
+                <strong>Date:</strong> {appointment.date}
               </p>
-              <p>
-                <strong>Diagnosis:</strong> {appointment.diagnosis}
+              <p className="appointment-card-detail">
+                <strong>Time:</strong> {appointment.time}
               </p>
-              <p>
-                <strong>Therapy:</strong> {appointment.therapy}
-              </p>
-              {appointment.fileUrl && (
-                <button
-                  onClick={() => handleDownloadFile(appointment.fileUrl, appointment.fileType)}
-                  style={{ marginTop: "10px" }}
-                >
-                  Download File
-                </button>
-              )}
-            </li>
+              <button
+                className="show-diagnosis-button"
+                onClick={() => {
+                  setSelectedAppointment(appointment);
+                  setShowModal(true);
+                }}
+              >
+                Show Diagnosis and Therapy
+              </button>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
-        <p>No finished appointments found.</p>
+        <p className="no-appointments-message">No finished appointments found.</p>
+      )}
+
+      {showModal && selectedAppointment && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+          <button
+    className="close-modal-x-button"
+    onClick={() => setShowModal(false)}
+    aria-label="Close"
+  >
+    X
+    </button>
+            <h2>
+              Diagnosis and Therapy from Dr. {selectedAppointment.doctorName}{" "}
+              {selectedAppointment.doctorSurname}
+            </h2>
+            <p>
+              <strong>Reason:</strong> {selectedAppointment.reason}
+            </p>
+            <p>
+              <strong>Diagnosis:</strong> {selectedAppointment.diagnosis}
+            </p>
+            <p>
+              <strong>Therapy:</strong> {selectedAppointment.therapy}
+            </p>
+            {selectedAppointment.fileUrl && (
+              <button
+                className="download-file-button"
+                onClick={() =>
+                  handleDownloadFile(selectedAppointment.fileUrl, selectedAppointment.fileType)
+                }
+              >
+                Download File
+              </button>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
