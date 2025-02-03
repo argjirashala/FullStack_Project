@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import "./UpcomingAppointments.css";
 
 const UpcomingAppointments = ({ doctorData }) => {
   const [appointments, setAppointments] = useState([]);
@@ -34,24 +35,29 @@ const UpcomingAppointments = ({ doctorData }) => {
   }, [doctorData.doctorID]);
 
   return (
-    <div>
-      <h1>Upcoming Appointments for Dr. {doctorData?.name}</h1>
-      <p>View the list of your upcoming appointments.</p>
+    <div className="upcoming-appointments-container">
+      <h1 className="upcoming-appointments-header">
+        Upcoming Appointments for Dr. {doctorData?.name}
+      </h1>
+      <p className="upcoming-appointments-description">
+        View the list of your upcoming appointments.
+      </p>
 
       {appointments.length > 0 ? (
-        <ul>
+        <ul className="upcoming-appointments-list">
           {appointments.map((appointment) => (
-            <li key={appointment.id}>
-              <strong>{appointment.date}</strong> at <strong>{appointment.time}</strong>
-              <p>
+            <li key={appointment.id} className="upcoming-appointment-item">
+              <strong className="appointment-date">{appointment.date}</strong> at{" "}
+              <strong className="appointment-time">{appointment.time}</strong>
+              <p className="appointment-patient">
                 Patient: {appointment.patientFirstName} {appointment.patientLastName}
               </p>
-              <p>Reason: {appointment.reason}</p>
+              <p className="appointment-reason">Reason: {appointment.reason}</p>
             </li>
           ))}
         </ul>
       ) : (
-        <p>No upcoming appointments found.</p>
+        <p className="no-upcoming-appointments-message">No upcoming appointments found.</p>
       )}
     </div>
   );

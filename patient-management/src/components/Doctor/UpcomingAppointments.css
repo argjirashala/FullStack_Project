@@ -1,0 +1,56 @@
+.upcoming-appointments-container {
+  padding: 20px;
+  background-color: #f0f8ff;
+  min-height: 100vh;
+}
+
+.upcoming-appointments-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2a23a2;
+  margin-bottom: 10px;
+}
+
+.upcoming-appointments-description {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.upcoming-appointments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.upcoming-appointment-item {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.appointment-date {
+  font-size: 16px;
+  color: #2a23a2;
+}
+
+.appointment-time {
+  font-size: 16px;
+  color: #2a23a2;
+}
+
+.appointment-patient,
+.appointment-reason {
+  font-size: 14px;
+  color: #555;
+  margin: 5px 0;
+}
+
+.no-upcoming-appointments-message {
+  font-size: 16px;
+  color: #555;
+  margin-top: 20px;
+  text-align: center;
+}

@@ -1,0 +1,87 @@
+.profile-container {
+  padding: 20px;
+  background-color: #f0f8ff;
+  min-height: 100vh;
+  border-radius: 10px;
+}
+
+.profile-header,
+.profile-subheader {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2a23a2;
+  margin-bottom: 20px;
+}
+
+.profile-form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.profile-form label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+  display: block;
+  margin-top: 10px;
+}
+
+.profile-form input,
+.profile-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.divider {
+  margin: 30px 0;
+  border: 0;
+  height: 1px;
+  background: #ccc;
+}
+
+.profile-save-button {
+  background-color: #2a23a2;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.profile-save-button:hover {
+  background-color: #161176;
+}
+
+.profile-error-message {
+  color: red;
+  font-size: 20px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.profile-success-message {
+  color: green;
+  font-size: 20px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .profile-form {
+    padding: 15px;
+  }
+
+  .profile-save-button {
+    width: 100%;
+  }
+}

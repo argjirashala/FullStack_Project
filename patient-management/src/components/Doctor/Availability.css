@@ -1,0 +1,126 @@
+.availability-container {
+  padding: 20px;
+  background-color: #f0f8ff;
+  min-height: 100vh;
+}
+
+.availability-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2a23a2;
+  margin-bottom: 10px;
+}
+
+.availability-description {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.form-section {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.form-error {
+  color: red;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+.form-success {
+  color: green;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.add-button {
+  background-color: #2a23a2;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-button:hover {
+  background-color: #161176;
+}
+
+.availability-section-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #2a23a2;
+  margin-bottom: 10px;
+}
+
+.availability-list {
+  list-style: none;
+  padding: 0;
+}
+
+.availability-item {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.slots-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slot-item {
+  font-size: 14px;
+  color: #555;
+  margin: 5px 0;
+}
+
+.slot-booked {
+  color: red;
+  margin-left: 10px;
+}
+
+.remove-button {
+  background-color: #ccc;
+  color: white;
+  font-size: 12px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.remove-button:hover {
+  background-color: #bbb;
+}

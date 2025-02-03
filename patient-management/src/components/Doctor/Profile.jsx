@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase-config"; 
+import { useState, useEffect } from "react";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase-config";
 import PropTypes from "prop-types";
+import "./Profile.css";
 
 const Profile = ({ doctorData }) => {
   const [formData, setFormData] = useState({
@@ -16,8 +17,42 @@ const Profile = ({ doctorData }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [profileError, setProfileError] = useState("");
+
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const [errors, setErrors] = useState({ phone: "", password: "" });
+  
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
+        const docSnap = await getDoc(doctorDocRef);
+        if (docSnap.exists()) {
+          setFormData(docSnap.data()); 
+        }
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    fetchProfileData();
+  }, [doctorData.doctorID]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "phone") {
+      const phoneRegex = /^\+\d+$/; 
+      if (!phoneRegex.test(value)) {
+        setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone must start with + and contain only numbers." }));
+      } else {
+        setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
+      }
+    }
+
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -26,197 +61,112 @@ const Profile = ({ doctorData }) => {
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    setProfileSuccess("");
+    setProfileError("");
+
+    if (errors.phone) {
+      setProfileError("Please fix errors before saving.");
+      return;
+    }
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
+      await updateDoc(doctorDocRef, { ...formData });
 
-      await updateDoc(doctorDocRef, {
-        email: formData.email,
-        specialization: formData.specialization,
-        clinicName: formData.clinicName,
-        clinicAddress: formData.clinicAddress,
-        phone: formData.phone,
-      });
-
-      alert("Profile updated successfully!");
+      setProfileSuccess("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("An error occurred while saving your profile.");
+      setProfileError("An error occurred while saving your profile.");
     }
   };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
+    setPasswordSuccess("");
+    setPasswordError("");
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
     if (currentPassword !== doctorData.password) {
-      alert("Current password is incorrect.");
+      setPasswordError("Current password is incorrect.");
       return;
     }
-
     if (newPassword !== confirmNewPassword) {
-      alert("New passwords do not match.");
+      setPasswordError("New passwords do not match.");
       return;
+    }
+    if (!passwordRegex.test(newPassword)) {
+      setErrors((prevErrors) => ({ ...prevErrors, password: "Password must be at least 8 characters long and contain both letters and numbers." }));
+      return;
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, password: "" }));
     }
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
+      await updateDoc(doctorDocRef, { password: newPassword });
 
-      await updateDoc(doctorDocRef, {
-        password: newPassword,
-      });
-
-      alert("Password updated successfully!");
+      setPasswordSuccess("Password updated successfully!");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
     } catch (error) {
       console.error("Error updating password:", error);
-      alert("An error occurred while changing your password.");
+      setPasswordError("An error occurred while changing your password.");
     }
   };
 
   return (
-    <div>
-      <h1>Update Your Profile</h1>
-      <form onSubmit={handleSaveProfile}>
+    <div className="profile-container">
+      <h1 className="profile-header">Update Your Profile</h1>
+
+      {profileSuccess && <div className="profile-success-message">{profileSuccess}</div>}
+      {profileError && <div className="profile-error-message">{profileError}</div>}
+
+      <form className="profile-form" onSubmit={handleSaveProfile}>
         <label>Email Address</label>
-        <br />
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <br />
+        <input type="email" name="email" value={formData.email} onChange={handleChange} required />
 
         <label>Specialization</label>
-        <br />
-        <select
-          name="specialization"
-          value={formData.specialization}
-          onChange={handleChange}
-          required
-        >
+        <select name="specialization" value={formData.specialization} onChange={handleChange} required>
           <option value="">--Select Specialization--</option>
-          <option value="AerospaceMedicineSpecialist">Aerospace Medicine Specialist</option>
-          <option value="Allergist">Allergist</option>
-          <option value="Anaesthesiologist">Anaesthesiologist</option>
-          <option value="Andrologist">Andrologist</option>
           <option value="Cardiologist">Cardiologist</option>
-          <option value="Cardiac Electrophysiologist">Cardiac Electrophysiologist</option>
-          <optgroup label="DentalCare">
-            <option value="GeneralDentist">General Dentist</option>
-            <option value="Pedodontist">Pedodontist</option>
-            <option value="Orthodontist">Orthodontist</option>
-            <option value="Periodontist">Periodontist</option>
-            <option value="Endodontist">Endodontist</option>
-            <option value="OralSurgeon">Oral Surgeon</option>
-            <option value="Prosthodontist">Prosthodontist</option>
-          </optgroup>
           <option value="Dermatologist">Dermatologist</option>
-          <option value="Dietitian/Dietician">Dietitian/Dietician</option>
-          <option value="EmergencyRoomDoctor">Emergency Room (ER) Doctor</option>
-          <option value="Endocrinologist">Endocrinologist</option>
-          <option value="Epidemiologist">Epidemiologist</option>
-          <option value="Family Medicine Physician">Family Medicine Physician</option>
-          <option value="Gastroenterologist">Gastroenterologist</option>
-          <option value="Geriatrician">Geriatrician</option>
-          <option value="Hyperbarichysician">Hyperbaric Physician</option>
-          <option value="Hematologist">Hematologist</option>
-          <option value="Hepatologist">Hepatologist</option>
-          <option value="Immunologist">Immunologist</option>
-          <option value="InfectiousDiseaseSpecialist">Infectious Disease Specialist</option>
-          <option value="Intensivist">Intensivist</option>
-          <option value="Neonatologist">Neonatologist</option>
-          <option value="Nephrologist">Nephrologist</option>
           <option value="Neurologist">Neurologist</option>
-          <option value="Neurosurgeon">Neurosurgeon</option>
-          <option value="Obstetrician/Gynecologist">Obstetrician/Gynecologist</option>
-          <option value="Oncologist">Oncologist</option>
-          <option value="Ophthalmologist">Ophthalmologist</option>
-          <option value="Orthopedist">Orthopedist</option>
-          <option value="Parasitologist">Parasitologist</option>
-          <option value="Pathologist">Pathologist</option>
           <option value="Pediatrician">Pediatrician</option>
-          <option value="Physiatrist">Physiatrist</option>
-          <option value="PlasticSurgeon">Plastic Surgeon</option>
           <option value="Psychiatrist">Psychiatrist</option>
-          <option value="Pulmonologist">Pulmonologist</option>
           <option value="Radiologist">Radiologist</option>
-          <option value="Urologist">Urologist</option>
-          <option value="VascularSurgeon">Vascular Surgeon</option>
-          <option value="Veterinarian">Veterinarian</option>
         </select>
-        <br />
-        <br />
 
         <label>Clinic Address</label>
-        <br />
-        <input
-          type="text"
-          name="clinicAddress"
-          value={formData.clinicAddress}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <br />
+        <input type="text" name="clinicAddress" value={formData.clinicAddress} onChange={handleChange} required />
 
         <label>Phone Number</label>
-        <br />
-        <input
-          type="number"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <br />
+        <input type="text" name="phone" value={formData.phone} onChange={handleChange} required />
+        {errors.phone && <p className="profile-error-message">{errors.phone}</p>}
 
-        <button type="submit">Save Profile</button>
+        <button type="submit" className="profile-save-button">Save Profile</button>
       </form>
 
-      <hr />
+      <hr className="divider" />
 
-      <h2>Change Password</h2>
-      <form onSubmit={handleChangePassword}>
+      <h2 className="profile-subheader">Change Password</h2>
+
+      {passwordSuccess && <div className="profile-success-message">{passwordSuccess}</div>}
+      {passwordError && <div className="profile-error-message">{passwordError}</div>}
+
+      <form className="profile-form" onSubmit={handleChangePassword}>
         <label>Current Password</label>
-        <br />
-        <input
-          type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          required
-        />
-        <br />
-        <br />
+        <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
 
         <label>New Password</label>
-        <br />
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-        />
-        <br />
-        <br />
+        <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+        {errors.password && <p className="profile-error-message">{errors.password}</p>}
 
         <label>Confirm New Password</label>
-        <br />
-        <input
-          type="password"
-          value={confirmNewPassword}
-          onChange={(e) => setConfirmNewPassword(e.target.value)}
-          required
-        />
-        <br />
-        <br />
+        <input type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required />
 
-        <button type="submit">Change Password</button>
+        <button type="submit" className="profile-save-button">Change Password</button>
       </form>
     </div>
   );

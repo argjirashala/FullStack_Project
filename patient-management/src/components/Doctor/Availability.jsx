@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import "./Availability.css";
 import { db } from "../../firebase-config";
 
 const SetAvailability = ({ doctorData }) => {
@@ -9,38 +10,40 @@ const SetAvailability = ({ doctorData }) => {
   const [endTime, setEndTime] = useState("");
   const [availability, setAvailability] = useState([]);
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const fetchAvailabilityAndBookedSlots = async () => {
-      if (!doctorData?.doctorID) return; 
-  
+      if (!doctorData?.doctorID) return;
+
       try {
         const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
         const doctorSnapshot = await getDoc(doctorDocRef);
-  
+
         if (doctorSnapshot.exists()) {
           const data = doctorSnapshot.data();
-          setAvailability(data.availability || []);
+          const today = new Date().toISOString().split("T")[0];
+          setAvailability((data.availability || []).filter((item) => item.date >= today));
         }
-  
+
         const appointmentsCollection = collection(db, "appointments");
         const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
         const querySnapshot = await getDocs(q);
-  
+
         const booked = querySnapshot.docs.map((doc) => ({
           date: doc.data().date,
           time: doc.data().time,
         }));
-  
+
         setBookedSlots(booked);
       } catch (error) {
         console.error("Error fetching availability or booked slots:", error);
       }
     };
-  
+
     fetchAvailabilityAndBookedSlots();
   }, [doctorData?.doctorID]);
-  
 
   const isSlotBooked = (date, startTime, endTime) => {
     return bookedSlots.some(
@@ -50,18 +53,19 @@ const SetAvailability = ({ doctorData }) => {
 
   const handleAddTimeSlot = async () => {
     if (!date || !startTime || !endTime) {
-      alert("Please fill in all fields before adding a time slot.");
+      setError("All fields are required.");
       return;
     }
     if (startTime >= endTime) {
-      alert("Start time must be before end time.");
+      setError("Start time must be before end time.");
       return;
     }
 
+    setError(""); 
     const newSlot = { startTime, endTime };
     const updatedAvailability = [...availability];
-
     const dateIndex = updatedAvailability.findIndex((item) => item.date === date);
+
     if (dateIndex >= 0) {
       updatedAvailability[dateIndex].slots.push(newSlot);
     } else {
@@ -72,13 +76,15 @@ const SetAvailability = ({ doctorData }) => {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
       await updateDoc(doctorDocRef, { availability: updatedAvailability });
 
-      alert("Time slot added successfully!");
       setAvailability(updatedAvailability);
+      setDate("");
       setStartTime("");
       setEndTime("");
+
+      setSuccessMessage("Time slot added successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000); 
     } catch (error) {
       console.error("Error adding time slot:", error);
-      alert("An error occurred while adding the time slot.");
     }
   };
 
@@ -89,91 +95,87 @@ const SetAvailability = ({ doctorData }) => {
           ? { ...item, slots: item.slots.filter((_, i) => i !== slotIndex) }
           : item
       )
-      .filter((item) => item.slots.length > 0); 
+      .filter((item) => item.slots.length > 0);
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
       await updateDoc(doctorDocRef, { availability: updatedAvailability });
 
-      alert("Time slot removed successfully!");
       setAvailability(updatedAvailability);
     } catch (error) {
       console.error("Error removing time slot:", error);
-      alert("An error occurred while removing the time slot.");
     }
   };
 
   return (
-    <div>
-      <h1>Set Availability for Dr. {doctorData?.name}</h1>
-      <p>Here, you can set your working hours and availability.</p>
+    <div className="availability-container">
+      <h1 className="availability-header">Set Availability for Dr. {doctorData?.name}</h1>
+      <p className="availability-description">
+        Manage your working hours and set availability slots for appointments.
+      </p>
 
-      <div>
-        <label>Date</label>
-        <br />
+      <div className="form-section">
+        <label htmlFor="date" className="form-label">Date</label>
         <input
           type="date"
+          id="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          required
+          className="form-input"
         />
-        <br />
-        <br />
 
-        <label>Start Time</label>
-        <br />
+        <label htmlFor="startTime" className="form-label">Start Time</label>
         <input
           type="time"
+          id="startTime"
           value={startTime}
           onChange={(e) => setStartTime(e.target.value)}
-          required
+          className="form-input"
         />
-        <br />
-        <br />
 
-        <label>End Time</label>
-        <br />
+        <label htmlFor="endTime" className="form-label">End Time</label>
         <input
           type="time"
+          id="endTime"
           value={endTime}
           onChange={(e) => setEndTime(e.target.value)}
-          required
+          className="form-input"
         />
-        <br />
-        <br />
 
-        <button onClick={handleAddTimeSlot}>Add Time Slot</button>
-        <br />
-        <br />
+        {error && <p className="form-error">{error}</p>}
+        {successMessage && <p className="form-success">{successMessage}</p>}
 
-        <h2>Availability</h2>
-        <ul>
-          {availability.map((item, dateIndex) => (
-            <li key={dateIndex}>
+        <button onClick={handleAddTimeSlot} className="add-button">Add Time Slot</button>
+      </div>
+
+      <h2 className="availability-section-title">Availability</h2>
+      <ul className="availability-list">
+        {availability
+          .filter((item) => item.date >= new Date().toISOString().split("T")[0]) 
+          .map((item, dateIndex) => (
+            <li key={dateIndex} className="availability-item">
               <strong>{item.date}</strong>
-              <ul>
-                {item.slots.map((slot, slotIndex) => (
-                  <li key={slotIndex}>
-                    {slot.startTime} - {slot.endTime}{" "}
-                    {isSlotBooked(item.date, slot.startTime, slot.endTime) ? (
-                      <span style={{ color: "red", marginLeft: "10px" }}>
-                        (Booked)
-                      </span>
-                    ) : (
+
+              <ul className="slots-list">
+                {item.slots
+                  .filter(
+                    (slot) => !isSlotBooked(item.date, slot.startTime, slot.endTime) 
+                  )
+                  .map((slot, slotIndex) => (
+                    <li key={slotIndex} className="slot-item">
+                      {slot.startTime} - {slot.endTime}
                       <button
                         onClick={() => handleRemoveTimeSlot(item.date, slotIndex)}
-                        style={{ marginLeft: "10px" }}
+                        className="remove-button"
                       >
                         Remove
                       </button>
-                    )}
-                  </li>
-                ))}
+                    </li>
+                  ))}
               </ul>
             </li>
           ))}
-        </ul>
-      </div>
+      </ul>
     </div>
   );
 };
