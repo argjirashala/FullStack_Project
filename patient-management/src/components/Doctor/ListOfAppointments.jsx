@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, updateDoc, doc } from "firebase/fire
 import { db } from "../../firebase-config";
 import axios from "axios";
 import "./ListOfAppointments.css";
+import { getEnvVar } from "../../config/env";
 
 const ListOfAppointments = ({ doctorData }) => {
   const [appointments, setAppointments] = useState([]);
@@ -23,10 +24,10 @@ const ListOfAppointments = ({ doctorData }) => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const cloudinaryConfig = {
-    cloudName: import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME,
-    uploadPreset: import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET,
-    imageUploadUrl: import.meta.env.VITE_APP_CLOUDINARY_IMAGE_UPLOAD_URL,
-    rawUploadUrl: import.meta.env.VITE_APP_CLOUDINARY_RAW_UPLOAD_URL,
+    cloudName: getEnvVar("VITE_APP_CLOUDINARY_CLOUD_NAME"),
+    uploadPreset: getEnvVar("VITE_APP_CLOUDINARY_UPLOAD_PRESET"),
+    imageUploadUrl: getEnvVar("VITE_APP_CLOUDINARY_IMAGE_UPLOAD_URL"),
+    rawUploadUrl: getEnvVar("VITE_APP_CLOUDINARY_RAW_UPLOAD_URL"),
   };
 
   useEffect(() => {
@@ -95,7 +96,6 @@ const ListOfAppointments = ({ doctorData }) => {
     }
   };
   
-
   const handleEditDiagnosisAndTherapy = async () => {
     if (!diagnosis.trim() || !therapy.trim()) {
       setErrorMessage("Diagnosis and therapy cannot be empty.");
@@ -180,14 +180,9 @@ const ListOfAppointments = ({ doctorData }) => {
     setFile(null);
   };
   
-
-
-
-
-
   return (
     <div className="list-appointments-container">
-      <h1 className="list-appointments-header">List of Appointments for Dr. {doctorData?.name}</h1>
+      <h1 className="list-appointments-header">List of Appointments for Dr. {doctorData?.surname}</h1>
 
       <div className="list-search-section">
         <input type="text" placeholder="First Name" value={searchCriteria.firstName} onChange={(e) => setSearchCriteria({ ...searchCriteria, firstName: e.target.value })} />
@@ -229,11 +224,10 @@ const ListOfAppointments = ({ doctorData }) => {
           <div className="modal-content">
             <h2>Edit Diagnosis and Therapy</h2>
             {errorMessage && <div className="list-error-message">{errorMessage}</div>}
-
-            <label>Diagnosis:</label>
-            <textarea value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} />
-            <label>Therapy:</label>
-            <textarea value={therapy} onChange={(e) => setTherapy(e.target.value)} />
+            <label htmlFor="diagnosis">Diagnosis:</label>
+            <textarea id="diagnosis" value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} />
+            <label htmlFor="therapy">Therapy:</label>
+            <textarea id="therapy" value={therapy} onChange={(e) => setTherapy(e.target.value)} />
             <label>Upload File:</label>
             <input type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileChange} />
             <div className="modal-buttons">
@@ -251,6 +245,7 @@ ListOfAppointments.propTypes = {
   doctorData: PropTypes.shape({
     name: PropTypes.string.isRequired,
     doctorID: PropTypes.string.isRequired,
+    surname: PropTypes.string.isRequired
   }).isRequired,
 };
 

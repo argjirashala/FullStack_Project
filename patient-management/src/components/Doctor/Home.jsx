@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, updateDoc, doc } from "firebase/fire
 import { db } from "../../firebase-config";
 import axios from "axios";
 import "./Home.css";
+import { getEnvVar } from "../../config/env";
 
 const Home = ({ doctorData }) => {
   const [todaysAppointments, setTodaysAppointments] = useState([]);
@@ -11,16 +12,16 @@ const Home = ({ doctorData }) => {
   const [diagnosis, setDiagnosis] = useState("");
   const [therapy, setTherapy] = useState("");
   const [file, setFile] = useState(null);
-  const [setFileUrl] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
   const [error, setError] = useState({ diagnosis: "", therapy: "" });
 
   const cloudinaryConfig = {
-    cloudName: import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME,
-    uploadPreset: import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET,
-    imageUploadUrl: import.meta.env.VITE_APP_CLOUDINARY_IMAGE_UPLOAD_URL,
-    rawUploadUrl: import.meta.env.VITE_APP_CLOUDINARY_RAW_UPLOAD_URL,
+    cloudName: getEnvVar("VITE_APP_CLOUDINARY_CLOUD_NAME"),
+    uploadPreset: getEnvVar("VITE_APP_CLOUDINARY_UPLOAD_PRESET"),
+    imageUploadUrl: getEnvVar("VITE_APP_CLOUDINARY_IMAGE_UPLOAD_URL"),
+    rawUploadUrl: getEnvVar("VITE_APP_CLOUDINARY_RAW_UPLOAD_URL"),
   };
-
+  
   useEffect(() => {
     const fetchTodaysAppointments = async () => {
       if (!doctorData?.doctorID) return;
@@ -76,7 +77,6 @@ const Home = ({ doctorData }) => {
         )
       );
 
-      // Close the modal after saving
       setSelectedAppointment(null);
       setDiagnosis("");
       setTherapy("");
