@@ -26,3 +26,7 @@ jobs:
       - name: Run tests
         working-directory: ./patient-management
         run: npm run test -- --verbose
+
+      - name: Run linting
+        working-directory: ./patient-management
+        run: npm run lint
