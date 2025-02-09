@@ -17,10 +17,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20" # Adjust the Node version if needed
+          node-version: "20"
 
       - name: Install dependencies
+        working-directory: ./patient-management
         run: npm install
 
       - name: Run tests
-        run: npm run test
+        working-directory: ./patient-management
+        run: npm run test -- --verbose
