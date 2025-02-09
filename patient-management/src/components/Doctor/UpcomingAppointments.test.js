@@ -15,8 +15,6 @@ const mockDoctorData = {
   name: "Smith",
 };
 
-const today = new Date().toISOString().split("T")[0];
-
 const mockUpcomingAppointments = [
   {
     id: "appt1",

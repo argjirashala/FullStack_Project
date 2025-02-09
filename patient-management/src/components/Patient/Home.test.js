@@ -18,15 +18,7 @@ const renderComponent = () =>
     </BrowserRouter>
   );
 
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { getDocs, addDoc, getDoc } from "firebase/firestore";
 
 jest.mock("firebase/firestore", () => ({
   collection: jest.fn(),

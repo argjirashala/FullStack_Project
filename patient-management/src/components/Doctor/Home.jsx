@@ -12,7 +12,7 @@ const Home = ({ doctorData }) => {
   const [diagnosis, setDiagnosis] = useState("");
   const [therapy, setTherapy] = useState("");
   const [file, setFile] = useState(null);
-  const [fileUrl, setFileUrl] = useState(null);
+  const [_fileUrl, setFileUrl] = useState(null);
   const [error, setError] = useState({ diagnosis: "", therapy: "" });
 
   const cloudinaryConfig = {

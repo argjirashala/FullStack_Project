@@ -4,14 +4,7 @@ import FinishedAppointments from "./FinishedAppointments";
 import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
 
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { getDocs, getDoc } from "firebase/firestore";
 
 const dummyUser = {
   uid: "user1",

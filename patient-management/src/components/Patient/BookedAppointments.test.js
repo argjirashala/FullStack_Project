@@ -18,14 +18,7 @@ const renderComponent = () =>
     </BrowserRouter>
   );
 
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { getDocs, getDoc } from "firebase/firestore";
 
 const createQuerySnapshot = (docsData) => ({
   empty: docsData.length === 0,

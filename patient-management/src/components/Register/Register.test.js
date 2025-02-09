@@ -2,16 +2,9 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Register from "./Register";
 import { BrowserRouter } from "react-router-dom";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { getDocs, setDoc } from "firebase/firestore";
 
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  setDoc,
-} from "firebase/firestore";
 jest.mock("firebase/firestore", () => ({
   collection: jest.fn(),
   query: jest.fn(),
@@ -192,7 +185,7 @@ describe("Register Component", () => {
   });
 
   test("shows error when an account with the email already exists", async () => {
-    getDocs.mockImplementation((q) => {
+    getDocs.mockImplementation(() => {
       return Promise.resolve(
         createNonEmptyQuerySnapshot({ email: "john.doe@example.com" })
       );

@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DoctorLogin from "./DoctorLogin";
 import { BrowserRouter } from "react-router-dom";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { getDocs } from "firebase/firestore";
 
 jest.mock("firebase/firestore", () => ({
   collection: jest.fn(),
