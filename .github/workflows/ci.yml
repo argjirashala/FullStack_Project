@@ -30,3 +30,7 @@ jobs:
       - name: Run linting
         working-directory: ./patient-management
         run: npm run lint
+
+      - name: Run Cypress tests
+        working-directory: ./patient-management
+        run: npx cypress run
