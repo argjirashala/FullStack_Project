@@ -84,8 +84,7 @@ describe("Login Page", () => {
     });
     cy.get("#email").type("test@example.com");
     cy.get(".forgot-password").click();
-    cy.contains("Password reset email sent", { timeout: 10000 }).should(
-      "be.visible"
-    );
+    cy.wait(500);
+    cy.contains("Password reset email sent").should("be.visible");
   });
 });
