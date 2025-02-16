@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 import axios from "axios";
 import "./ListOfAppointments.css";
 import { getEnvVar } from "../../config/env";
@@ -23,6 +23,9 @@ const ListOfAppointments = ({ doctorData }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const getDocsFunc = window.getDocs || getDocs;
+
+
   const cloudinaryConfig = {
     cloudName: getEnvVar("VITE_APP_CLOUDINARY_CLOUD_NAME"),
     uploadPreset: getEnvVar("VITE_APP_CLOUDINARY_UPLOAD_PRESET"),
@@ -35,7 +38,7 @@ const ListOfAppointments = ({ doctorData }) => {
       try {
         const appointmentsCollection = collection(db, "appointments");
         const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocsFunc(q);
 
         const finishedAppointments = querySnapshot.docs
           .map((doc) => ({
@@ -52,7 +55,7 @@ const ListOfAppointments = ({ doctorData }) => {
     };
 
     fetchFinishedAppointments();
-  }, [doctorData.doctorID]);
+  }, [doctorData.doctorID, getDocsFunc]);
 
   const handleSearch = () => {
     const { firstName, lastName, personalId, appointmentDate } = searchCriteria;

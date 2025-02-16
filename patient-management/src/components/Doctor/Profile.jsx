@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 import PropTypes from "prop-types";
 import "./Profile.css";
 
@@ -24,12 +24,16 @@ const Profile = ({ doctorData }) => {
   const [passwordError, setPasswordError] = useState("");
 
   const [errors, setErrors] = useState({ phone: "", password: "" });
+
+  const getDocFunc = window.getDoc || getDoc;
+  const updateDocFunc = window.updateDoc || updateDoc;
+
   
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
-        const docSnap = await getDoc(doctorDocRef);
+        const docSnap = await getDocFunc(doctorDocRef);
         if (docSnap.exists()) {
           setFormData(docSnap.data()); 
         }
@@ -39,7 +43,7 @@ const Profile = ({ doctorData }) => {
     };
 
     fetchProfileData();
-  }, [doctorData.doctorID]);
+  }, [doctorData.doctorID, getDocFunc, updateDocFunc]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,7 +75,7 @@ const Profile = ({ doctorData }) => {
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
-      await updateDoc(doctorDocRef, { ...formData });
+      await updateDocFunc(doctorDocRef, { ...formData });
 
       setProfileSuccess("Profile updated successfully!");
     } catch (error) {
@@ -104,7 +108,7 @@ const Profile = ({ doctorData }) => {
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
-      await updateDoc(doctorDocRef, { password: newPassword });
+      await updateDocFunc(doctorDocRef, { password: newPassword });
 
       setPasswordSuccess("Password updated successfully!");
       setCurrentPassword("");
@@ -186,7 +190,7 @@ const Profile = ({ doctorData }) => {
         <input type="text" id="phone" data-testid= "phone" name="phone" value={formData.phone} onChange={handleChange} required />
         {errors.phone && <p className="profile-error-message">{errors.phone}</p>}
 
-        <button type="submit" className="profile-save-button">Save Profile</button>
+        <button type="submit" data-testid="save-profile" className="profile-save-button">Save Profile</button>
       </form>
 
       <hr className="divider" />

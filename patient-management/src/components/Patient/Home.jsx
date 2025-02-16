@@ -1,10 +1,11 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 import "./Home.css";
 
 const Home = ({ user }) => {
+  console.log(user);
   const [specialization, setSpecialization] = useState("");
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -17,6 +18,11 @@ const Home = ({ user }) => {
 
   const todayDate = new Date().toISOString().split("T")[0];
 
+  const getDocsFunc = window.getDocs || getDocs;
+  const getDocFunc = window.getDoc || getDoc;
+  const addDocFunc = window.addDoc || addDoc;
+
+
   const handleSpecializationChange = async (e) => {
     const selectedSpecialization = e.target.value;
     setSpecialization(selectedSpecialization);
@@ -25,7 +31,7 @@ const Home = ({ user }) => {
       try {
         const doctorsCollection = collection(db, "doctors");
         const q = query(doctorsCollection, where("specialization", "==", selectedSpecialization));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocsFunc(q);
 
         const fetchedDoctors = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -56,7 +62,7 @@ const Home = ({ user }) => {
     if (selectedDoctor && date) {
       try {
         const doctorDocRef = doc(db, "doctors", selectedDoctor.id);
-        const doctorSnapshot = await getDoc(doctorDocRef);
+        const doctorSnapshot = await getDocFunc(doctorDocRef);
 
         if (doctorSnapshot.exists()) {
           const doctorData = doctorSnapshot.data();
@@ -73,7 +79,7 @@ const Home = ({ user }) => {
               where("doctorId", "==", selectedDoctor.id),
               where("date", "==", date)
             );
-            const appointmentSnapshot = await getDocs(appointmentQuery);
+            const appointmentSnapshot = await getDocsFunc(appointmentQuery);
 
             const bookedSlots = appointmentSnapshot.docs.map((doc) => doc.data().time);
             const freeSlots = allSlots.filter(
@@ -119,7 +125,7 @@ const Home = ({ user }) => {
       };
 
       const appointmentsCollection = collection(db, "appointments");
-      const docRef = await addDoc(appointmentsCollection, appointmentData);
+      const docRef = await addDocFunc(appointmentsCollection, appointmentData);
 
       setFeedbackMessage(`Appointment booked successfully! Appointment ID: ${docRef.id}`);
       setTimeout(() => setShowModal(false), 3000); 

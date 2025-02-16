@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 import "./Availability.css";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 
 const SetAvailability = ({ doctorData }) => {
   const [date, setDate] = useState("");
@@ -13,13 +13,17 @@ const SetAvailability = ({ doctorData }) => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const getDocFunc = window.getDoc || getDoc;
+  const getDocsFunc = window.getDocs || getDocs;
+  const updateDocFunc = window.updateDoc || updateDoc;
+
   useEffect(() => {
     const fetchAvailabilityAndBookedSlots = async () => {
       if (!doctorData?.doctorID) return;
 
       try {
         const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
-        const doctorSnapshot = await getDoc(doctorDocRef);
+        const doctorSnapshot = await getDocFunc(doctorDocRef);
 
         if (doctorSnapshot.exists()) {
           const data = doctorSnapshot.data();
@@ -29,7 +33,7 @@ const SetAvailability = ({ doctorData }) => {
 
         const appointmentsCollection = collection(db, "appointments");
         const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocsFunc(q);
 
         const booked = querySnapshot.docs.map((doc) => ({
           date: doc.data().date,
@@ -43,7 +47,7 @@ const SetAvailability = ({ doctorData }) => {
     };
 
     fetchAvailabilityAndBookedSlots();
-  }, [doctorData?.doctorID]);
+  }, [doctorData?.doctorID, getDocFunc, getDocsFunc]);
 
   const isSlotBooked = (date, startTime, endTime) => {
     return bookedSlots.some(
@@ -74,7 +78,7 @@ const SetAvailability = ({ doctorData }) => {
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
-      await updateDoc(doctorDocRef, { availability: updatedAvailability });
+      await updateDocFunc(doctorDocRef, { availability: updatedAvailability });
 
       setAvailability(updatedAvailability);
       setDate("");
@@ -99,7 +103,7 @@ const SetAvailability = ({ doctorData }) => {
 
     try {
       const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
-      await updateDoc(doctorDocRef, { availability: updatedAvailability });
+      await updateDocFunc(doctorDocRef, { availability: updatedAvailability });
 
       setAvailability(updatedAvailability);
     } catch (error) {

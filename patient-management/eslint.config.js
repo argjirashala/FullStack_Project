@@ -15,9 +15,11 @@ export default [
         ...globals.browser,
         ...globals.node,
         ...globals.jest,
+        cy: true,
+        context: true,
       },
       parserOptions: {
-        ecmaFeatures: { jsx: true }, // Enable JSX
+        ecmaFeatures: { jsx: true },
       },
     },
     plugins: {

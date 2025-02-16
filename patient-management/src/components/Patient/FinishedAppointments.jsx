@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 import axios from "axios";
 import "./FinishedAppointments.css";
 
@@ -10,12 +10,16 @@ const FinishedAppointments = ({ user }) => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const getDocsFunc = window.getDocs || getDocs;
+  const getDocFunc = window.getDoc || getDoc;
+
+
   useEffect(() => {
     const fetchFinishedAppointments = async () => {
       try {
         const appointmentsCollection = collection(db, "appointments");
         const q = query(appointmentsCollection, where("patientId", "==", user.personalId));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocsFunc(q);
 
         const finishedAppointments = querySnapshot.docs
           .map((doc) => ({
@@ -28,7 +32,7 @@ const FinishedAppointments = ({ user }) => {
           finishedAppointments.map(async (appointment) => {
             try {
               const doctorDocRef = doc(db, "doctors", appointment.doctorId);
-              const doctorSnapshot = await getDoc(doctorDocRef);
+              const doctorSnapshot = await getDocFunc(doctorDocRef);
 
               if (doctorSnapshot.exists()) {
                 const doctorData = doctorSnapshot.data();
@@ -54,7 +58,7 @@ const FinishedAppointments = ({ user }) => {
     };
 
     fetchFinishedAppointments();
-  }, [user.personalId]);
+  }, [user.personalId, getDocFunc, getDocsFunc]);
 
   const handleDownloadFile = async (fileUrl, fileType) => {
     try {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 import axios from "axios";
 import "./Home.css";
 import { getEnvVar } from "../../config/env";
@@ -14,6 +14,9 @@ const Home = ({ doctorData }) => {
   const [file, setFile] = useState(null);
   const [_fileUrl, setFileUrl] = useState(null);
   const [error, setError] = useState({ diagnosis: "", therapy: "" });
+
+  const getDocsFunc = window.getDocs || getDocs;
+  const updateDocFunc = window.updateDoc || updateDoc;
 
   const cloudinaryConfig = {
     cloudName: getEnvVar("VITE_APP_CLOUDINARY_CLOUD_NAME"),
@@ -29,7 +32,7 @@ const Home = ({ doctorData }) => {
       try {
         const appointmentsCollection = collection(db, "appointments");
         const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocsFunc(q);
 
         const fetchedAppointments = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -48,7 +51,7 @@ const Home = ({ doctorData }) => {
     };
 
     fetchTodaysAppointments();
-  }, [doctorData?.doctorID]);
+  }, [doctorData?.doctorID, getDocsFunc, updateDocFunc]);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -62,7 +65,7 @@ const Home = ({ doctorData }) => {
       const newFileUrl = file ? await uploadFileToCloudinary() : null;
 
       const appointmentDocRef = doc(db, "appointments", appointmentId);
-      await updateDoc(appointmentDocRef, {
+      await updateDocFunc(appointmentDocRef, {
         diagnosis,
         therapy,
         fileUrl: newFileUrl,

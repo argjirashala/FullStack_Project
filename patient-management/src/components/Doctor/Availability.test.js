@@ -19,7 +19,7 @@ const mockDoctorData = {
 };
 
 const mockAvailability = [
-  { date: "2025-02-10", slots: [{ startTime: "09:00", endTime: "10:00" }] },
+  { date: "2025-09-23", slots: [{ startTime: "09:00", endTime: "10:00" }] },
 ];
 
 const mockBookedSlots = [];
@@ -49,7 +49,7 @@ describe("SetAvailability Component", () => {
       expect(
         screen.getByText(/Manage your working hours/i)
       ).toBeInTheDocument();
-      expect(screen.getByText("2025-02-10")).toBeInTheDocument();
+      expect(screen.getByText("2025-09-23")).toBeInTheDocument();
     });
   });
 
@@ -57,7 +57,7 @@ describe("SetAvailability Component", () => {
     renderComponent();
 
     fireEvent.change(screen.getByLabelText(/Date/i), {
-      target: { value: "2025-02-11" },
+      target: { value: "2025-09-24" },
     });
     fireEvent.change(screen.getByLabelText(/Start Time/i), {
       target: { value: "10:00" },
@@ -79,7 +79,7 @@ describe("SetAvailability Component", () => {
     renderComponent();
 
     fireEvent.change(screen.getByLabelText(/Date/i), {
-      target: { value: "2025-02-11" },
+      target: { value: "2025-09-24" },
     });
     fireEvent.change(screen.getByLabelText(/Start Time/i), {
       target: { value: "12:00" },

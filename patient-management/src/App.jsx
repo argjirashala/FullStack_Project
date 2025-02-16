@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "./firebase-config";
+import { db } from "./config/firebase-config";
 import Login from "./components/Login/Login";
 import Register from "./components/Register/Register";
 import PatientView from "./components/Patient/PatientView";
@@ -14,8 +14,19 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const auth = getAuth();
+    if (window.Cypress) {
+      setUser({
+        uid: "fakeUid",
+        personalId: "P123",  
+        firstName: "Test",
+        lastName: "Patient",
+        email: "test@example.com",
+      });
+      setLoading(false);
+      return;
+    }
 
+    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
@@ -33,42 +44,32 @@ const App = () => {
       } else {
         setUser(null);
       }
-      setLoading(false); 
+      setLoading(false);
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   return (
     <div>
       <Routes>
-  <Route
-    path="/login"
-    element={<Login />}
-  />
-  
-  <Route
-    path="/signup"
-    element={<Register />} 
-  />
-
-  <Route
-    path="/patient/*"
-    element={user ? <PatientView user={user} /> : <Navigate to="/login" />}
-  />
-
-  <Route path="/doctor-login" element={<DoctorLogin />} />
-  <Route path="/doctor/*" element={<DoctorView />} />
-  
-  <Route path="*" element={<Navigate to="/login" />} />
-</Routes>
-
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Register />} />
+        <Route
+          path="/patient/*"
+          element={user ? <PatientView user={user} /> : <Navigate to="/login" />}
+        />
+        <Route path="/doctor-login" element={<DoctorLogin />} />
+        <Route path="/doctor/*" element={<DoctorView />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
     </div>
   );
 };
 
 export default App;
+

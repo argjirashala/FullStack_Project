@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 import "./BookedAppointments.css";
 
 const BookedAppointments = ({ user }) => {
   const [appointments, setAppointments] = useState([]);
+  const getDocsFunc = window.getDocs || getDocs;
+  const getDocFunc = window.getDoc || getDoc;
+
 
   useEffect(() => {
     const fetchBookedAppointments = async () => {
       try {
         const appointmentsCollection = collection(db, "appointments");
         const q = query(appointmentsCollection, where("patientId", "==", user.personalId));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocsFunc(q);
 
         const today = new Date().toISOString().split("T")[0];
 
@@ -27,7 +30,7 @@ const BookedAppointments = ({ user }) => {
           bookedAppointments.map(async (appointment) => {
             try {
               const doctorDocRef = doc(db, "doctors", appointment.doctorId);
-              const doctorSnapshot = await getDoc(doctorDocRef);
+              const doctorSnapshot = await getDocFunc(doctorDocRef);
 
               if (doctorSnapshot.exists()) {
                 const doctorData = doctorSnapshot.data();
@@ -53,7 +56,7 @@ const BookedAppointments = ({ user }) => {
     };
 
     fetchBookedAppointments();
-  }, [user.personalId]);
+  }, [user.personalId, getDocFunc, getDocsFunc]);
 
   return (
     <div className="booked-appointments-container">

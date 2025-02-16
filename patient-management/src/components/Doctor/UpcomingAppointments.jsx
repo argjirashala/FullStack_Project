@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db } from "../../config/firebase-config";
 import "./UpcomingAppointments.css";
 
 const UpcomingAppointments = ({ doctorData }) => {
   const [appointments, setAppointments] = useState([]);
+  const getDocsFunc = window.getDocs || getDocs;
+
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
         const appointmentsCollection = collection(db, "appointments");
         const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocsFunc(q);
 
         const fetchedAppointments = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -32,7 +34,7 @@ const UpcomingAppointments = ({ doctorData }) => {
     };
 
     fetchAppointments();
-  }, [doctorData.doctorID]);
+  }, [doctorData.doctorID, getDocsFunc]);
 
   return (
     <div className="upcoming-appointments-container">

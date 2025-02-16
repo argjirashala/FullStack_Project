@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../firebase-config";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import "./DoctorLogin.css";
+import { getDoctorById as getDoctorByIdImported } from "../../config/doctorLoginService";
 
 const DoctorLogin = () => {
   const [doctorId, setDoctorId] = useState("");
@@ -10,34 +9,33 @@ const DoctorLogin = () => {
   const [error, setError] = useState(""); 
   const navigate = useNavigate();
 
+  const getDoctorById = window.doctorLoginService?.getDoctorById || getDoctorByIdImported;
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const doctorsCollectionRef = collection(db, "doctors");
-      const q = query(doctorsCollectionRef, where("doctorID", "==", doctorId));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDoctorById(doctorId);
 
       if (!querySnapshot.empty) {
         const doctorData = querySnapshot.docs[0].data();
 
         if (password === doctorData.password) {
           console.log("Doctor logged in successfully:", doctorData);
-
           localStorage.setItem("doctorData", JSON.stringify(doctorData));
-
           navigate("/doctor/home");
         } else {
           setError("Invalid password. Please try again.");
         }
       } else {
-        setError("Doctor ID not found. Please check your credentials."); 
+        setError("Doctor ID not found. Please check your credentials.");
       }
     } catch (error) {
       console.error("Error during login:", error);
       setError("An error occurred. Please try again.");
     }
   };
+
 
   return (
     <div className="doctor-login-container">

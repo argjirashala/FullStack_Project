@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../firebase-config";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import firebaseService  from "../../config/firebaseService";
 import "./Login.css"; 
 
 const Login = () => {
@@ -11,40 +10,36 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(""); 
   const navigate = useNavigate();
-  
+
+  const firebaseServicee = window.firebaseService || firebaseService;
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); 
+    setError("");
   
     try {
-      const usersCollectionRef = collection(db, "patients"); 
-      const emailQuery = query(usersCollectionRef, where("email", "==", email));
-      const emailSnapshot = await getDocs(emailQuery);
-  
+      const emailSnapshot = await firebaseServicee.getPatientByEmail(email);
       if (emailSnapshot.empty) {
         setError("No account found with this email. Please sign up or check your email address.");
         return;
       }
+  
+      await firebaseServicee.signIn(email, password);
 
-      const auth = getAuth();
-      await signInWithEmailAndPassword(auth, email, password);
-  
+      const auth = window.getAuth ? window.getAuth() : getAuth();
       const userCredential = auth.currentUser;
-      const patientDocRef = doc(db, "patients", userCredential.uid);
-      const patientDoc = await getDoc(patientDocRef);
   
+      const patientDoc = await firebaseServicee.getPatientData(userCredential.uid);
       if (patientDoc.exists()) {
         const patientData = patientDoc.data();
         console.log("Patient data:", patientData);
-  
         navigate("/patient/home", { state: { patientData } });
       } else {
         setError("Patient record not found in Firestore.");
       }
     } catch (error) {
       if (error.code === "auth/invalid-credential") {
-        setError("Incorrect password. Please try again."); 
+        setError("Incorrect password. Please try again.");
       } else if (error.code === "auth/invalid-email") {
         setError("Invalid email format. Please check and try again.");
       } else {
