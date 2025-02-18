@@ -15,6 +15,9 @@ describe("Login Page", () => {
           get() {
             return firebaseServiceStub;
           },
+          set(_value) {
+            void _value;
+          },
         });
 
         Object.defineProperty(win, "getAuth", {
