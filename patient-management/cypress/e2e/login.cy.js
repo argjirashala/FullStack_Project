@@ -15,9 +15,6 @@ describe("Login Page", () => {
           get() {
             return firebaseServiceStub;
           },
-          set(value) {
-            console.log("Ignoring override of firebaseService", value);
-          },
         });
 
         Object.defineProperty(win, "getAuth", {

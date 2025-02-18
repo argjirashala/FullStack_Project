@@ -8,12 +8,14 @@ const UpcomingAppointments = ({ doctorData }) => {
   const [appointments, setAppointments] = useState([]);
   const getDocsFunc = window.getDocs || getDocs;
 
-
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
         const appointmentsCollection = collection(db, "appointments");
-        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
+        const q = query(
+          appointmentsCollection,
+          where("doctorId", "==", doctorData.doctorID)
+        );
         const querySnapshot = await getDocsFunc(q);
 
         const fetchedAppointments = querySnapshot.docs.map((doc) => ({
@@ -49,17 +51,21 @@ const UpcomingAppointments = ({ doctorData }) => {
         <ul className="upcoming-appointments-list">
           {appointments.map((appointment) => (
             <li key={appointment.id} className="upcoming-appointment-item">
-              <strong className="appointment-date">{appointment.date}</strong> at{" "}
+              <strong className="appointment-date">{appointment.date}</strong>{" "}
+              at{" "}
               <strong className="appointment-time">{appointment.time}</strong>
               <p className="appointment-patient">
-                Patient: {appointment.patientFirstName} {appointment.patientLastName}
+                Patient: {appointment.patientFirstName}{" "}
+                {appointment.patientLastName}
               </p>
               <p className="appointment-reason">Reason: {appointment.reason}</p>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="no-upcoming-appointments-message">No upcoming appointments found.</p>
+        <p className="no-upcoming-appointments-message">
+          No upcoming appointments found.
+        </p>
       )}
     </div>
   );

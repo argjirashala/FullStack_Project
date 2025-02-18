@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../config/firebase-config";
-import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  setDoc,
+} from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import "./Register.css";
 
@@ -25,7 +32,10 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if ((name === "firstName" || name === "lastName") && /[^a-zA-Z ]/.test(value)) {
+    if (
+      (name === "firstName" || name === "lastName") &&
+      /[^a-zA-Z ]/.test(value)
+    ) {
       return;
     }
 
@@ -48,11 +58,15 @@ const Register = () => {
       return false;
     }
     if (!phoneRegex.test(formData.phone)) {
-      setError("Phone number must start with a '+' followed by digits (e.g., +123456789).");
+      setError(
+        "Phone number must start with a '+' followed by digits (e.g., +123456789)."
+      );
       return false;
     }
     if (!passwordRegex.test(formData.password)) {
-      setError("Password must be at least 8 characters long and include both letters and numbers.");
+      setError(
+        "Password must be at least 8 characters long and include both letters and numbers."
+      );
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -65,27 +79,39 @@ const Register = () => {
   const checkUserExists = async () => {
     const patientsCollection = collection(db, "patients");
 
-    const emailQuery = query(patientsCollection, where("email", "==", formData.email));
+    const emailQuery = query(
+      patientsCollection,
+      where("email", "==", formData.email)
+    );
     const emailSnapshot = await getDocs(emailQuery);
 
     if (!emailSnapshot.empty) {
       setError(
         <>
           An account with this email already exists. Please try{" "}
-          <a href="/login" className="login-link">logging in</a>.
+          <a href="/login" className="login-link">
+            logging in
+          </a>
+          .
         </>
       );
       return true;
     }
-    
-    const idQuery = query(patientsCollection, where("personalId", "==", formData.personalId));
+
+    const idQuery = query(
+      patientsCollection,
+      where("personalId", "==", formData.personalId)
+    );
     const idSnapshot = await getDocs(idQuery);
 
     if (!idSnapshot.empty) {
       setError(
         <>
           An account with this personal ID already exists. Please try{" "}
-          <a href="/login" className="login-link">logging in</a>.
+          <a href="/login" className="login-link">
+            logging in
+          </a>
+          .
         </>
       );
       return true;
@@ -129,7 +155,7 @@ const Register = () => {
       setSuccess("Sign up successful! Redirecting to login...");
       setTimeout(() => {
         navigate("/login");
-      }, 3000); 
+      }, 3000);
 
       setFormData({
         personalId: "",
@@ -154,7 +180,9 @@ const Register = () => {
         <h2 className="register-title">Sign Up</h2>
         {error && <p className="register-error">{error}</p>}
         <form onSubmit={handleRegister} className="register-form">
-          <label htmlFor="personalId" className="register-label">Personal Id</label>
+          <label htmlFor="personalId" className="register-label">
+            Personal Id
+          </label>
           <input
             type="text"
             id="personalId"
@@ -165,7 +193,9 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="firstName" className="register-label">First Name</label>
+          <label htmlFor="firstName" className="register-label">
+            First Name
+          </label>
           <input
             type="text"
             id="firstName"
@@ -176,7 +206,9 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="lastName" className="register-label">Last Name</label>
+          <label htmlFor="lastName" className="register-label">
+            Last Name
+          </label>
           <input
             type="text"
             id="lastName"
@@ -187,7 +219,9 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="birthday" className="register-label">Birthday</label>
+          <label htmlFor="birthday" className="register-label">
+            Birthday
+          </label>
           <input
             type="date"
             id="birthday"
@@ -198,7 +232,9 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="address" className="register-label">Address</label>
+          <label htmlFor="address" className="register-label">
+            Address
+          </label>
           <input
             type="text"
             id="address"
@@ -208,7 +244,9 @@ const Register = () => {
             onChange={handleChange}
           />
 
-          <label htmlFor="phone" className="register-label">Phone</label>
+          <label htmlFor="phone" className="register-label">
+            Phone
+          </label>
           <input
             type="text"
             id="phone"
@@ -220,7 +258,9 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="email" className="register-label">Email</label>
+          <label htmlFor="email" className="register-label">
+            Email
+          </label>
           <input
             type="email"
             id="email"
@@ -231,7 +271,9 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="password" className="register-label">Password</label>
+          <label htmlFor="password" className="register-label">
+            Password
+          </label>
           <input
             type="password"
             id="password"
@@ -242,7 +284,9 @@ const Register = () => {
             required
           />
 
-          <label htmlFor="confirmPassword" className="register-label">Confirm Password</label>
+          <label htmlFor="confirmPassword" className="register-label">
+            Confirm Password
+          </label>
           <input
             type="password"
             id="confirmPassword"
@@ -253,12 +297,14 @@ const Register = () => {
             required
           />
 
-          <button type="submit" className="register-button">Sign Up</button>
+          <button type="submit" className="register-button">
+            Sign Up
+          </button>
           {success && (
-          <div className="register-success">
-            <p>{success}</p>
-          </div>
-        )}
+            <div className="register-success">
+              <p>{success}</p>
+            </div>
+          )}
         </form>
       </div>
     </div>

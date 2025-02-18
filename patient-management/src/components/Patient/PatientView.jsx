@@ -13,7 +13,6 @@ const PatientView = ({ user }) => {
     const auth = getAuth();
     signOut(auth)
       .then(() => {
-        console.log("Logged out successfully!");
         window.location.reload();
       })
       .catch((error) => {
@@ -61,8 +60,14 @@ const PatientView = ({ user }) => {
       <div className="content-container">
         <Routes>
           <Route path="home" element={<Home user={user} />} />
-          <Route path="booked-appointments" element={<BookedAppointments user={user} />} />
-          <Route path="finished-appointments" element={<FinishedAppointments user={user} />} />
+          <Route
+            path="booked-appointments"
+            element={<BookedAppointments user={user} />}
+          />
+          <Route
+            path="finished-appointments"
+            element={<FinishedAppointments user={user} />}
+          />
         </Routes>
       </div>
     </div>

@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "../../config/firebase-config";
 import axios from "axios";
 import "./Home.css";
@@ -24,14 +31,17 @@ const Home = ({ doctorData }) => {
     imageUploadUrl: getEnvVar("VITE_APP_CLOUDINARY_IMAGE_UPLOAD_URL"),
     rawUploadUrl: getEnvVar("VITE_APP_CLOUDINARY_RAW_UPLOAD_URL"),
   };
-  
+
   useEffect(() => {
     const fetchTodaysAppointments = async () => {
       if (!doctorData?.doctorID) return;
 
       try {
         const appointmentsCollection = collection(db, "appointments");
-        const q = query(appointmentsCollection, where("doctorId", "==", doctorData.doctorID));
+        const q = query(
+          appointmentsCollection,
+          where("doctorId", "==", doctorData.doctorID)
+        );
         const querySnapshot = await getDocsFunc(q);
 
         const fetchedAppointments = querySnapshot.docs.map((doc) => ({
@@ -75,7 +85,13 @@ const Home = ({ doctorData }) => {
       setTodaysAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
           appointment.id === appointmentId
-            ? { ...appointment, diagnosis, therapy, fileUrl: newFileUrl, fileType: file?.type || null }
+            ? {
+                ...appointment,
+                diagnosis,
+                therapy,
+                fileUrl: newFileUrl,
+                fileType: file?.type || null,
+              }
             : appointment
         )
       );
@@ -116,9 +132,10 @@ const Home = ({ doctorData }) => {
     formData.append("cloud_name", cloudinaryConfig.cloudName);
 
     try {
-      const uploadEndpoint = file.type === "application/pdf"
-        ? cloudinaryConfig.rawUploadUrl
-        : cloudinaryConfig.imageUploadUrl;
+      const uploadEndpoint =
+        file.type === "application/pdf"
+          ? cloudinaryConfig.rawUploadUrl
+          : cloudinaryConfig.imageUploadUrl;
 
       const response = await axios.post(uploadEndpoint, formData);
       return response.data.secure_url;
@@ -159,16 +176,21 @@ const Home = ({ doctorData }) => {
 
   return (
     <div className="doctor-home-container">
-      <h1 className="doctor-home-header">Welcome, Dr. {doctorData?.surname}!</h1>
+      <h1 className="doctor-home-header">
+        Welcome, Dr. {doctorData?.surname}!
+      </h1>
 
-      <h2 className="home-appointments-section-title">Today&apos;s Appointments</h2>
+      <h2 className="home-appointments-section-title">
+        Today&apos;s Appointments
+      </h2>
       {todaysAppointments.length > 0 ? (
         <ul className="home-appointments-list">
           {todaysAppointments.map((appointment) => (
             <li key={appointment.id} className="home-appointment-item">
               <strong>{appointment.time}</strong>
               <p>
-                Patient: {appointment.patientFirstName} {appointment.patientLastName}
+                Patient: {appointment.patientFirstName}{" "}
+                {appointment.patientLastName}
               </p>
               <p>Reason: {appointment.reason}</p>
               <button
@@ -183,13 +205,19 @@ const Home = ({ doctorData }) => {
           ))}
         </ul>
       ) : (
-        <p className="home-no-appointments-message">No appointments for today.</p>
+        <p className="home-no-appointments-message">
+          No appointments for today.
+        </p>
       )}
 
       {selectedAppointment && (
         <div className="home-modal-overlay">
           <div className="home-modal-content">
-            <h2>{selectedAppointment.diagnosis ? "Diagnosis and Therapy" : "Add Diagnosis and Therapy"}</h2>
+            <h2>
+              {selectedAppointment.diagnosis
+                ? "Diagnosis and Therapy"
+                : "Add Diagnosis and Therapy"}
+            </h2>
 
             <label htmlFor="diagnosis">Diagnosis:</label>
             <br />
@@ -198,11 +226,16 @@ const Home = ({ doctorData }) => {
               value={diagnosis}
               onChange={(e) => setDiagnosis(e.target.value)}
               required
-              className={`home-modal-textarea ${error.diagnosis ? "error-border" : ""}`}
+              className={`home-modal-textarea ${
+                error.diagnosis ? "error-border" : ""
+              }`}
               disabled={!!selectedAppointment.diagnosis}
             />
-            {error.diagnosis && <p className="home-error-message">{error.diagnosis}</p>}
-            <br /><br />
+            {error.diagnosis && (
+              <p className="home-error-message">{error.diagnosis}</p>
+            )}
+            <br />
+            <br />
 
             <label htmlFor="therapy">Therapy:</label>
             <br />
@@ -211,33 +244,57 @@ const Home = ({ doctorData }) => {
               value={therapy}
               onChange={(e) => setTherapy(e.target.value)}
               required
-              className={`home-modal-textarea ${error.therapy ? "error-border" : ""}`}
+              className={`home-modal-textarea ${
+                error.therapy ? "error-border" : ""
+              }`}
               disabled={!!selectedAppointment.therapy}
             />
-            {error.therapy && <p className="home-error-message">{error.therapy}</p>}
-            <br /><br />
+            {error.therapy && (
+              <p className="home-error-message">{error.therapy}</p>
+            )}
+            <br />
+            <br />
 
             {selectedAppointment.fileUrl ? (
               <button
                 className="home-download-button"
-                onClick={() => handleDownloadFile(selectedAppointment.fileUrl, selectedAppointment.fileType)}
+                onClick={() =>
+                  handleDownloadFile(
+                    selectedAppointment.fileUrl,
+                    selectedAppointment.fileType
+                  )
+                }
               >
                 Download File
               </button>
             ) : (
               <>
                 <label htmlFor="file">Upload File (optional):</label>
-                <input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileChange} />
+                <input
+                  type="file"
+                  id="file"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleFileChange}
+                />
               </>
             )}
 
             <div className="home-modal-buttons">
-              {!selectedAppointment.diagnosis && !selectedAppointment.therapy && (
-                <button className="home-save-button" onClick={() => handleSaveDiagnosisAndTherapy(selectedAppointment.id)}>
-                  Save
-                </button>
-              )}
-              <button className="home-cancel-button" onClick={() => setSelectedAppointment(null)}>
+              {!selectedAppointment.diagnosis &&
+                !selectedAppointment.therapy && (
+                  <button
+                    className="home-save-button"
+                    onClick={() =>
+                      handleSaveDiagnosisAndTherapy(selectedAppointment.id)
+                    }
+                  >
+                    Save
+                  </button>
+                )}
+              <button
+                className="home-cancel-button"
+                onClick={() => setSelectedAppointment(null)}
+              >
                 Close
               </button>
             </div>

@@ -17,7 +17,7 @@ const App = () => {
     if (window.Cypress) {
       setUser({
         uid: "fakeUid",
-        personalId: "P123",  
+        personalId: "P123",
         firstName: "Test",
         lastName: "Patient",
         email: "test@example.com",
@@ -61,7 +61,9 @@ const App = () => {
         <Route path="/signup" element={<Register />} />
         <Route
           path="/patient/*"
-          element={user ? <PatientView user={user} /> : <Navigate to="/login" />}
+          element={
+            user ? <PatientView user={user} /> : <Navigate to="/login" />
+          }
         />
         <Route path="/doctor-login" element={<DoctorLogin />} />
         <Route path="/doctor/*" element={<DoctorView />} />
@@ -72,4 +74,3 @@ const App = () => {
 };
 
 export default App;
-

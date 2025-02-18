@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import firebaseService  from "../../config/firebaseService";
-import "./Login.css"; 
+import firebaseService from "../../config/firebaseService";
+import "./Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const firebaseServicee = window.firebaseService || firebaseService;
@@ -16,23 +16,26 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-  
+
     try {
       const emailSnapshot = await firebaseServicee.getPatientByEmail(email);
       if (emailSnapshot.empty) {
-        setError("No account found with this email. Please sign up or check your email address.");
+        setError(
+          "No account found with this email. Please sign up or check your email address."
+        );
         return;
       }
-  
+
       await firebaseServicee.signIn(email, password);
 
       const auth = window.getAuth ? window.getAuth() : getAuth();
       const userCredential = auth.currentUser;
-  
-      const patientDoc = await firebaseServicee.getPatientData(userCredential.uid);
+
+      const patientDoc = await firebaseServicee.getPatientData(
+        userCredential.uid
+      );
       if (patientDoc.exists()) {
         const patientData = patientDoc.data();
-        console.log("Patient data:", patientData);
         navigate("/patient/home", { state: { patientData } });
       } else {
         setError("Patient record not found in Firestore.");
@@ -49,7 +52,7 @@ const Login = () => {
   };
 
   const handleForgotPassword = async () => {
-    setError(""); 
+    setError("");
 
     if (!email) {
       setError("Please enter your email to reset your password.");
@@ -62,7 +65,7 @@ const Login = () => {
       setError("Password reset email sent! Check your inbox.");
     } catch (error) {
       console.error("Error sending password reset email:", error);
-      setError("Error sending password reset email. Please try again."); 
+      setError("Error sending password reset email. Please try again.");
     }
   };
 

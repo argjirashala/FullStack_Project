@@ -28,14 +28,13 @@ const Profile = ({ doctorData }) => {
   const getDocFunc = window.getDoc || getDoc;
   const updateDocFunc = window.updateDoc || updateDoc;
 
-  
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         const doctorDocRef = doc(db, "doctors", doctorData.doctorID);
         const docSnap = await getDocFunc(doctorDocRef);
         if (docSnap.exists()) {
-          setFormData(docSnap.data()); 
+          setFormData(docSnap.data());
         }
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -49,9 +48,12 @@ const Profile = ({ doctorData }) => {
     const { name, value } = e.target;
 
     if (name === "phone") {
-      const phoneRegex = /^\+\d+$/; 
+      const phoneRegex = /^\+\d+$/;
       if (!phoneRegex.test(value)) {
-        setErrors((prevErrors) => ({ ...prevErrors, phone: "Phone must start with + and contain only numbers." }));
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          phone: "Phone must start with + and contain only numbers.",
+        }));
       } else {
         setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
       }
@@ -100,7 +102,11 @@ const Profile = ({ doctorData }) => {
       return;
     }
     if (!passwordRegex.test(newPassword)) {
-      setErrors((prevErrors) => ({ ...prevErrors, password: "Password must be at least 8 characters long and contain both letters and numbers." }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password:
+          "Password must be at least 8 characters long and contain both letters and numbers.",
+      }));
       return;
     } else {
       setErrors((prevErrors) => ({ ...prevErrors, password: "" }));
@@ -124,22 +130,45 @@ const Profile = ({ doctorData }) => {
     <div className="profile-container">
       <h1 className="profile-header">Update Your Profile</h1>
 
-      {profileSuccess && <div className="profile-success-message">{profileSuccess}</div>}
-      {profileError && <div className="profile-error-message">{profileError}</div>}
+      {profileSuccess && (
+        <div className="profile-success-message">{profileSuccess}</div>
+      )}
+      {profileError && (
+        <div className="profile-error-message">{profileError}</div>
+      )}
 
       <form className="profile-form" onSubmit={handleSaveProfile}>
         <label htmlFor="email">Email Address</label>
-        <input type="email" name="email" id="email" data-testid="email" value={formData.email} onChange={handleChange} required />
+        <input
+          type="email"
+          name="email"
+          id="email"
+          data-testid="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
 
         <label htmlFor="specialization">Specialization</label>
-        <select name="specialization" id="specialization" data-testid="specialization" value={formData.specialization} onChange={handleChange} required>
-        <option value="">--Select Specialization--</option>
-          <option value="AerospaceMedicineSpecialist">Aerospace Medicine Specialist</option>
+        <select
+          name="specialization"
+          id="specialization"
+          data-testid="specialization"
+          value={formData.specialization}
+          onChange={handleChange}
+          required
+        >
+          <option value="">--Select Specialization--</option>
+          <option value="AerospaceMedicineSpecialist">
+            Aerospace Medicine Specialist
+          </option>
           <option value="Allergist">Allergist</option>
           <option value="Anaesthesiologist">Anaesthesiologist</option>
           <option value="Andrologist">Andrologist</option>
           <option value="Cardiologist">Cardiologist</option>
-          <option value="Cardiac Electrophysiologist">Cardiac Electrophysiologist</option>
+          <option value="Cardiac Electrophysiologist">
+            Cardiac Electrophysiologist
+          </option>
           <optgroup label="DentalCare">
             <option value="GeneralDentist">General Dentist</option>
             <option value="Pedodontist">Pedodontist</option>
@@ -151,23 +180,31 @@ const Profile = ({ doctorData }) => {
           </optgroup>
           <option value="Dermatologist">Dermatologist</option>
           <option value="Dietitian/Dietician">Dietitian/Dietician</option>
-          <option value="EmergencyRoomDoctor">Emergency Room (ER) Doctor</option>
+          <option value="EmergencyRoomDoctor">
+            Emergency Room (ER) Doctor
+          </option>
           <option value="Endocrinologist">Endocrinologist</option>
           <option value="Epidemiologist">Epidemiologist</option>
-          <option value="Family Medicine Physician">Family Medicine Physician</option>
+          <option value="Family Medicine Physician">
+            Family Medicine Physician
+          </option>
           <option value="Gastroenterologist">Gastroenterologist</option>
           <option value="Geriatrician">Geriatrician</option>
           <option value="Hyperbarichysician">Hyperbaric Physician</option>
           <option value="Hematologist">Hematologist</option>
           <option value="Hepatologist">Hepatologist</option>
           <option value="Immunologist">Immunologist</option>
-          <option value="InfectiousDiseaseSpecialist">Infectious Disease Specialist</option>
+          <option value="InfectiousDiseaseSpecialist">
+            Infectious Disease Specialist
+          </option>
           <option value="Intensivist">Intensivist</option>
           <option value="Neonatologist">Neonatologist</option>
           <option value="Nephrologist">Nephrologist</option>
           <option value="Neurologist">Neurologist</option>
           <option value="Neurosurgeon">Neurosurgeon</option>
-          <option value="Obstetrician/Gynecologist">Obstetrician/Gynecologist</option>
+          <option value="Obstetrician/Gynecologist">
+            Obstetrician/Gynecologist
+          </option>
           <option value="Oncologist">Oncologist</option>
           <option value="Ophthalmologist">Ophthalmologist</option>
           <option value="Orthopedist">Orthopedist</option>
@@ -184,34 +221,91 @@ const Profile = ({ doctorData }) => {
           <option value="Veterinarian">Veterinarian</option>
         </select>
         <label htmlFor="clinicAddress">Clinic Address</label>
-        <input type="text" name="clinicAddress" id="clinic" data-testid="clinic" value={formData.clinicAddress} onChange={handleChange} required />
+        <input
+          type="text"
+          name="clinicAddress"
+          id="clinic"
+          data-testid="clinic"
+          value={formData.clinicAddress}
+          onChange={handleChange}
+          required
+        />
 
         <label htmlFor="phone">Phone Number</label>
-        <input type="text" id="phone" data-testid= "phone" name="phone" value={formData.phone} onChange={handleChange} required />
-        {errors.phone && <p className="profile-error-message">{errors.phone}</p>}
+        <input
+          type="text"
+          id="phone"
+          data-testid="phone"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          required
+        />
+        {errors.phone && (
+          <p className="profile-error-message">{errors.phone}</p>
+        )}
 
-        <button type="submit" data-testid="save-profile" className="profile-save-button">Save Profile</button>
+        <button
+          type="submit"
+          data-testid="save-profile"
+          className="profile-save-button"
+        >
+          Save Profile
+        </button>
       </form>
 
       <hr className="divider" />
 
       <h2 className="profile-subheader">Change Password</h2>
 
-      {passwordSuccess && <div className="profile-success-message">{passwordSuccess}</div>}
-      {passwordError && <div className="profile-error-message">{passwordError}</div>}
+      {passwordSuccess && (
+        <div className="profile-success-message">{passwordSuccess}</div>
+      )}
+      {passwordError && (
+        <div className="profile-error-message">{passwordError}</div>
+      )}
 
       <form className="profile-form" onSubmit={handleChangePassword}>
         <label htmlFor="currentPassword">Current Password</label>
-        <input id="currentPassword" data-testid="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+        <input
+          id="currentPassword"
+          data-testid="current-password"
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          required
+        />
 
         <label htmlFor="newPassword">New Password</label>
-        <input id="newPassword" data-testid="new-password-input" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
-        {errors.password && <p className="profile-error-message">{errors.password}</p>}
+        <input
+          id="newPassword"
+          data-testid="new-password-input"
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+        />
+        {errors.password && (
+          <p className="profile-error-message">{errors.password}</p>
+        )}
 
         <label htmlFor="confirmNewPassword">Confirm New Password</label>
-        <input id="confirmNewPassword" data-testid="confirm-new-password-input" type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required />
+        <input
+          id="confirmNewPassword"
+          data-testid="confirm-new-password-input"
+          type="password"
+          value={confirmNewPassword}
+          onChange={(e) => setConfirmNewPassword(e.target.value)}
+          required
+        />
 
-        <button data-testid="chngpass" type="submit" className="profile-save-button">Change Password</button>
+        <button
+          data-testid="chngpass"
+          type="submit"
+          className="profile-save-button"
+        >
+          Change Password
+        </button>
       </form>
     </div>
   );

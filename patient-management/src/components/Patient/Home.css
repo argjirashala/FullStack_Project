@@ -115,7 +115,6 @@
   font-size: 14px;
 }
 
-/* Responsive Adjustments */
 @media (max-width: 768px) {
   .doctor-list {
     justify-content: center;

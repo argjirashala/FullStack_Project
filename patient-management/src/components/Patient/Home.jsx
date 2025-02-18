@@ -1,11 +1,18 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { collection, query, where, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "../../config/firebase-config";
 import "./Home.css";
 
 const Home = ({ user }) => {
-  console.log(user);
   const [specialization, setSpecialization] = useState("");
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -14,14 +21,13 @@ const Home = ({ user }) => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [reason, setReason] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState(""); 
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const todayDate = new Date().toISOString().split("T")[0];
 
   const getDocsFunc = window.getDocs || getDocs;
   const getDocFunc = window.getDoc || getDoc;
   const addDocFunc = window.addDoc || addDoc;
-
 
   const handleSpecializationChange = async (e) => {
     const selectedSpecialization = e.target.value;
@@ -30,7 +36,10 @@ const Home = ({ user }) => {
     if (selectedSpecialization) {
       try {
         const doctorsCollection = collection(db, "doctors");
-        const q = query(doctorsCollection, where("specialization", "==", selectedSpecialization));
+        const q = query(
+          doctorsCollection,
+          where("specialization", "==", selectedSpecialization)
+        );
         const querySnapshot = await getDocsFunc(q);
 
         const fetchedDoctors = querySnapshot.docs.map((doc) => ({
@@ -57,7 +66,7 @@ const Home = ({ user }) => {
       return;
     }
 
-    setFeedbackMessage(""); 
+    setFeedbackMessage("");
 
     if (selectedDoctor && date) {
       try {
@@ -81,9 +90,12 @@ const Home = ({ user }) => {
             );
             const appointmentSnapshot = await getDocsFunc(appointmentQuery);
 
-            const bookedSlots = appointmentSnapshot.docs.map((doc) => doc.data().time);
+            const bookedSlots = appointmentSnapshot.docs.map(
+              (doc) => doc.data().time
+            );
             const freeSlots = allSlots.filter(
-              (slot) => !bookedSlots.includes(`${slot.startTime} - ${slot.endTime}`)
+              (slot) =>
+                !bookedSlots.includes(`${slot.startTime} - ${slot.endTime}`)
             );
 
             setAvailableSlots(freeSlots);
@@ -127,8 +139,10 @@ const Home = ({ user }) => {
       const appointmentsCollection = collection(db, "appointments");
       const docRef = await addDocFunc(appointmentsCollection, appointmentData);
 
-      setFeedbackMessage(`Appointment booked successfully! Appointment ID: ${docRef.id}`);
-      setTimeout(() => setShowModal(false), 3000); 
+      setFeedbackMessage(
+        `Appointment booked successfully! Appointment ID: ${docRef.id}`
+      );
+      setTimeout(() => setShowModal(false), 3000);
       setSelectedDoctor(null);
       setSelectedDate("");
       setAvailableSlots([]);
@@ -136,7 +150,9 @@ const Home = ({ user }) => {
       setReason("");
     } catch (error) {
       console.error("Error booking appointment:", error);
-      setFeedbackMessage("An error occurred while booking the appointment. Please try again.");
+      setFeedbackMessage(
+        "An error occurred while booking the appointment. Please try again."
+      );
     }
   };
 
@@ -147,20 +163,26 @@ const Home = ({ user }) => {
       <div className="appointment-section">
         <h2>Book an Appointment</h2>
 
-        <label htmlFor="specialization" className="home-label">Select Specialization</label>
+        <label htmlFor="specialization" className="home-label">
+          Select Specialization
+        </label>
         <select
           id="specialization"
           value={specialization}
           onChange={handleSpecializationChange}
           className="home-input"
         >
-                    <option value="">--Select Specialization--</option>
-          <option value="AerospaceMedicineSpecialist">Aerospace Medicine Specialist</option>
+          <option value="">--Select Specialization--</option>
+          <option value="AerospaceMedicineSpecialist">
+            Aerospace Medicine Specialist
+          </option>
           <option value="Allergist">Allergist</option>
           <option value="Anaesthesiologist">Anaesthesiologist</option>
           <option value="Andrologist">Andrologist</option>
           <option value="Cardiologist">Cardiologist</option>
-          <option value="Cardiac Electrophysiologist">Cardiac Electrophysiologist</option>
+          <option value="Cardiac Electrophysiologist">
+            Cardiac Electrophysiologist
+          </option>
           <optgroup label="DentalCare">
             <option value="GeneralDentist">General Dentist</option>
             <option value="Pedodontist">Pedodontist</option>
@@ -172,23 +194,31 @@ const Home = ({ user }) => {
           </optgroup>
           <option value="Dermatologist">Dermatologist</option>
           <option value="Dietitian/Dietician">Dietitian/Dietician</option>
-          <option value="EmergencyRoomDoctor">Emergency Room (ER) Doctor</option>
+          <option value="EmergencyRoomDoctor">
+            Emergency Room (ER) Doctor
+          </option>
           <option value="Endocrinologist">Endocrinologist</option>
           <option value="Epidemiologist">Epidemiologist</option>
-          <option value="Family Medicine Physician">Family Medicine Physician</option>
+          <option value="Family Medicine Physician">
+            Family Medicine Physician
+          </option>
           <option value="Gastroenterologist">Gastroenterologist</option>
           <option value="Geriatrician">Geriatrician</option>
           <option value="Hyperbarichysician">Hyperbaric Physician</option>
           <option value="Hematologist">Hematologist</option>
           <option value="Hepatologist">Hepatologist</option>
           <option value="Immunologist">Immunologist</option>
-          <option value="InfectiousDiseaseSpecialist">Infectious Disease Specialist</option>
+          <option value="InfectiousDiseaseSpecialist">
+            Infectious Disease Specialist
+          </option>
           <option value="Intensivist">Intensivist</option>
           <option value="Neonatologist">Neonatologist</option>
           <option value="Nephrologist">Nephrologist</option>
           <option value="Neurologist">Neurologist</option>
           <option value="Neurosurgeon">Neurosurgeon</option>
-          <option value="Obstetrician/Gynecologist">Obstetrician/Gynecologist</option>
+          <option value="Obstetrician/Gynecologist">
+            Obstetrician/Gynecologist
+          </option>
           <option value="Oncologist">Oncologist</option>
           <option value="Ophthalmologist">Ophthalmologist</option>
           <option value="Orthopedist">Orthopedist</option>
@@ -208,7 +238,9 @@ const Home = ({ user }) => {
         <div className="doctor-list">
           {doctors.map((doctor) => (
             <div className="doctor-card" key={doctor.id}>
-              <h3>Dr. {doctor.name} {doctor.surname}</h3>
+              <h3>
+                Dr. {doctor.name} {doctor.surname}
+              </h3>
               <p>Email: {doctor.email}</p>
               <p>Clinic: {doctor.clinicName}</p>
               <p>Address: {doctor.clinicAddress}</p>
@@ -230,8 +262,12 @@ const Home = ({ user }) => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>Book Appointment with Dr. {selectedDoctor.name}</h2>
-            {feedbackMessage && <p className="feedback-message">{feedbackMessage}</p>} 
-            <label htmlFor="date" className="home-label">Select Date</label>
+            {feedbackMessage && (
+              <p className="feedback-message">{feedbackMessage}</p>
+            )}
+            <label htmlFor="date" className="home-label">
+              Select Date
+            </label>
             <input
               type="date"
               id="date"
@@ -240,7 +276,9 @@ const Home = ({ user }) => {
               min={todayDate}
               onChange={handleDateChange}
             />
-            <label htmlFor="timeSlot" className="home-label">Select Time Slot</label>
+            <label htmlFor="timeSlot" className="home-label">
+              Select Time Slot
+            </label>
             <select
               id="timeSlot"
               className="home-input"
@@ -249,12 +287,17 @@ const Home = ({ user }) => {
             >
               <option value="">--Select Time Slot--</option>
               {availableSlots.map((slot, index) => (
-                <option key={index} value={`${slot.startTime} - ${slot.endTime}`}>
+                <option
+                  key={index}
+                  value={`${slot.startTime} - ${slot.endTime}`}
+                >
                   {slot.startTime} - {slot.endTime}
                 </option>
               ))}
             </select>
-            <label htmlFor="reason" className="home-label">Reason for Appointment</label>
+            <label htmlFor="reason" className="home-label">
+              Reason for Appointment
+            </label>
             <textarea
               id="reason"
               className="home-textarea"
@@ -265,7 +308,10 @@ const Home = ({ user }) => {
               <button className="modal-button" onClick={handleBookAppointment}>
                 Confirm Booking
               </button>
-              <button className="modal-button-cancel" onClick={() => setShowModal(false)}>
+              <button
+                className="modal-button-cancel"
+                onClick={() => setShowModal(false)}
+              >
                 Cancel
               </button>
             </div>

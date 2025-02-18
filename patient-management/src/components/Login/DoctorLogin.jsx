@@ -6,10 +6,11 @@ import { getDoctorById as getDoctorByIdImported } from "../../config/doctorLogin
 const DoctorLogin = () => {
   const [doctorId, setDoctorId] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const getDoctorById = window.doctorLoginService?.getDoctorById || getDoctorByIdImported;
+  const getDoctorById =
+    window.doctorLoginService?.getDoctorById || getDoctorByIdImported;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,7 +22,6 @@ const DoctorLogin = () => {
         const doctorData = querySnapshot.docs[0].data();
 
         if (password === doctorData.password) {
-          console.log("Doctor logged in successfully:", doctorData);
           localStorage.setItem("doctorData", JSON.stringify(doctorData));
           navigate("/doctor/home");
         } else {
@@ -36,12 +36,11 @@ const DoctorLogin = () => {
     }
   };
 
-
   return (
     <div className="doctor-login-container">
       <div className="doctor-login-box">
         <h2 className="doctor-login-title">Doctor Login</h2>
-        {error && <p className="doctor-login-error">{error}</p>} 
+        {error && <p className="doctor-login-error">{error}</p>}
         <form onSubmit={handleLogin} className="doctor-login-form">
           <label htmlFor="doctorId" className="doctor-login-label">
             Doctor ID

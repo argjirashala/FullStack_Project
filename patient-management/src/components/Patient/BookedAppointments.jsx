@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "../../config/firebase-config";
 import "./BookedAppointments.css";
 
@@ -9,12 +16,14 @@ const BookedAppointments = ({ user }) => {
   const getDocsFunc = window.getDocs || getDocs;
   const getDocFunc = window.getDoc || getDoc;
 
-
   useEffect(() => {
     const fetchBookedAppointments = async () => {
       try {
         const appointmentsCollection = collection(db, "appointments");
-        const q = query(appointmentsCollection, where("patientId", "==", user.personalId));
+        const q = query(
+          appointmentsCollection,
+          where("patientId", "==", user.personalId)
+        );
         const querySnapshot = await getDocsFunc(q);
 
         const today = new Date().toISOString().split("T")[0];
@@ -25,7 +34,7 @@ const BookedAppointments = ({ user }) => {
             ...doc.data(),
           }))
           .filter((appointment) => appointment.date >= today);
-          
+
         const enhancedAppointments = await Promise.all(
           bookedAppointments.map(async (appointment) => {
             try {
@@ -40,11 +49,19 @@ const BookedAppointments = ({ user }) => {
                   doctorSurname: doctorData.surname,
                 };
               } else {
-                return { ...appointment, doctorName: "Unknown", doctorSurname: "Unknown" };
+                return {
+                  ...appointment,
+                  doctorName: "Unknown",
+                  doctorSurname: "Unknown",
+                };
               }
             } catch (error) {
               console.error("Error fetching doctor data:", error);
-              return { ...appointment, doctorName: "Unknown", doctorSurname: "Unknown" };
+              return {
+                ...appointment,
+                doctorName: "Unknown",
+                doctorSurname: "Unknown",
+              };
             }
           })
         );
@@ -70,7 +87,8 @@ const BookedAppointments = ({ user }) => {
           {appointments.map((appointment) => (
             <div className="appointment-card" key={appointment.id}>
               <h3 className="appointment-card-title">
-                Appointment with Dr. {appointment.doctorName} {appointment.doctorSurname}
+                Appointment with Dr. {appointment.doctorName}{" "}
+                {appointment.doctorSurname}
               </h3>
               <p className="appointment-card-detail">
                 <strong>Date:</strong> {appointment.date}

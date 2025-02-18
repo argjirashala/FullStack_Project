@@ -12,9 +12,6 @@ describe("Doctor Login Page", () => {
           get() {
             return doctorLoginServiceStub;
           },
-          set(value) {
-            console.log("Ignoring override of doctorLoginService", value);
-          },
         });
 
         cy.stub(doctorLoginServiceStub, "getDoctorById").as(

@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "../../config/firebase-config";
 import axios from "axios";
 import "./FinishedAppointments.css";
@@ -13,12 +20,14 @@ const FinishedAppointments = ({ user }) => {
   const getDocsFunc = window.getDocs || getDocs;
   const getDocFunc = window.getDoc || getDoc;
 
-
   useEffect(() => {
     const fetchFinishedAppointments = async () => {
       try {
         const appointmentsCollection = collection(db, "appointments");
-        const q = query(appointmentsCollection, where("patientId", "==", user.personalId));
+        const q = query(
+          appointmentsCollection,
+          where("patientId", "==", user.personalId)
+        );
         const querySnapshot = await getDocsFunc(q);
 
         const finishedAppointments = querySnapshot.docs
@@ -26,7 +35,9 @@ const FinishedAppointments = ({ user }) => {
             id: doc.id,
             ...doc.data(),
           }))
-          .filter((appointment) => appointment.diagnosis && appointment.therapy);
+          .filter(
+            (appointment) => appointment.diagnosis && appointment.therapy
+          );
 
         const enhancedAppointments = await Promise.all(
           finishedAppointments.map(async (appointment) => {
@@ -42,11 +53,19 @@ const FinishedAppointments = ({ user }) => {
                   doctorSurname: doctorData.surname,
                 };
               } else {
-                return { ...appointment, doctorName: "Unknown", doctorSurname: "Unknown" };
+                return {
+                  ...appointment,
+                  doctorName: "Unknown",
+                  doctorSurname: "Unknown",
+                };
               }
             } catch (error) {
               console.error("Error fetching doctor data:", error);
-              return { ...appointment, doctorName: "Unknown", doctorSurname: "Unknown" };
+              return {
+                ...appointment,
+                doctorName: "Unknown",
+                doctorSurname: "Unknown",
+              };
             }
           })
         );
@@ -93,7 +112,8 @@ const FinishedAppointments = ({ user }) => {
           {appointments.map((appointment) => (
             <div className="appointment-card" key={appointment.id}>
               <h3 className="appointment-card-title">
-                Appointment with Dr. {appointment.doctorName} {appointment.doctorSurname}
+                Appointment with Dr. {appointment.doctorName}{" "}
+                {appointment.doctorSurname}
               </h3>
               <p className="appointment-card-detail">
                 <strong>Date:</strong> {appointment.date}
@@ -114,19 +134,21 @@ const FinishedAppointments = ({ user }) => {
           ))}
         </div>
       ) : (
-        <p className="no-appointments-message">No finished appointments found.</p>
+        <p className="no-appointments-message">
+          No finished appointments found.
+        </p>
       )}
 
       {showModal && selectedAppointment && (
         <div className="modal-overlay">
           <div className="modal-content">
-          <button
-    className="close-modal-x-button"
-    onClick={() => setShowModal(false)}
-    aria-label="Close"
-  >
-    X
-    </button>
+            <button
+              className="close-modal-x-button"
+              onClick={() => setShowModal(false)}
+              aria-label="Close"
+            >
+              X
+            </button>
             <h2>
               Diagnosis and Therapy from Dr. {selectedAppointment.doctorName}{" "}
               {selectedAppointment.doctorSurname}
@@ -144,7 +166,10 @@ const FinishedAppointments = ({ user }) => {
               <button
                 className="download-file-button"
                 onClick={() =>
-                  handleDownloadFile(selectedAppointment.fileUrl, selectedAppointment.fileType)
+                  handleDownloadFile(
+                    selectedAppointment.fileUrl,
+                    selectedAppointment.fileType
+                  )
                 }
               >
                 Download File
