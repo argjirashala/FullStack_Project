@@ -79,3 +79,19 @@
   text-align: left;
   font-size: 14px;
 }
+
+.patient-text {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+.patient-link {
+  color: #2a23a2;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.patient-link:hover {
+  text-decoration: underline;
+}

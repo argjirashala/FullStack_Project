@@ -7,7 +7,6 @@ import "./Login.css";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -78,6 +77,9 @@ const Login = () => {
             Sign up
           </a>
         </p>
+        <p className="signup-text">
+           Are you a doctor? <a href="/doctor-login" className="signup-link">Login here</a>
+        </p>
         {error && <p className="login-error">{error}</p>}
         <form onSubmit={handleLogin} className="login-form">
           <label htmlFor="email" className="login-label">
@@ -98,7 +100,7 @@ const Login = () => {
           </label>
           <div className="password-container">
             <input
-              type={showPassword ? "text" : "password"}
+              type="password"
               id="password"
               className="login-input"
               value={password}
@@ -106,24 +108,15 @@ const Login = () => {
               placeholder="Enter your password"
               required
             />
-            <button
-              type="button"
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "🙈" : "👁️"}
-            </button>
           </div>
 
           <button
             type="button"
             className="forgot-password"
             onClick={handleForgotPassword}
-            disabled={!email}
           >
             Forgot password?
           </button>
-
           <button type="submit" className="login-button">
             Login
           </button>

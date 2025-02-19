@@ -41,7 +41,7 @@ const UpcomingAppointments = ({ doctorData }) => {
   return (
     <div className="upcoming-appointments-container">
       <h1 className="upcoming-appointments-header">
-        Upcoming Appointments for Dr. {doctorData?.name}
+        Upcoming Appointments for Dr. {doctorData?.surname}
       </h1>
       <p className="upcoming-appointments-description">
         View the list of your upcoming appointments.
@@ -75,6 +75,7 @@ UpcomingAppointments.propTypes = {
   doctorData: PropTypes.shape({
     name: PropTypes.string.isRequired,
     doctorID: PropTypes.string.isRequired,
+    surname: PropTypes.string.isRequired
   }).isRequired,
 };
 

@@ -1,5 +1,9 @@
 describe("Upcoming Appointments Page", () => {
-  const fakeDoctorData = { name: "Dr. Future", doctorID: "doc456" };
+  const fakeDoctorData = {
+    name: "Dr. Future",
+    doctorID: "doc456",
+    surname: "Dr. Future",
+  };
 
   beforeEach(() => {
     cy.window().then((win) => {

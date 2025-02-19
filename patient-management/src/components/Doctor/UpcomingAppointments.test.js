@@ -13,6 +13,7 @@ jest.mock("firebase/firestore", () => ({
 const mockDoctorData = {
   doctorID: "doctor123",
   name: "Smith",
+  surname: "Smith",
 };
 
 const mockUpcomingAppointments = [

@@ -129,7 +129,7 @@ const SetAvailability = ({ doctorData }) => {
   return (
     <div className="availability-container">
       <h1 className="availability-header">
-        Set Availability for Dr. {doctorData?.name}
+        Set Availability for Dr. {doctorData?.surname}
       </h1>
       <p className="availability-description">
         Manage your working hours and set availability slots for appointments.
@@ -216,6 +216,7 @@ SetAvailability.propTypes = {
   doctorData: PropTypes.shape({
     name: PropTypes.string.isRequired,
     doctorID: PropTypes.string.isRequired,
+    surname: PropTypes.string.isRequired
   }).isRequired,
 };
 

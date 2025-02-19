@@ -41,6 +41,9 @@ const DoctorLogin = () => {
       <div className="doctor-login-box">
         <h2 className="doctor-login-title">Doctor Login</h2>
         {error && <p className="doctor-login-error">{error}</p>}
+        <p className="patient-test">
+           Are you a patient? <a href="/login" className="patient-link">Login here</a>
+        </p>
         <form onSubmit={handleLogin} className="doctor-login-form">
           <label htmlFor="doctorId" className="doctor-login-label">
             Doctor ID

@@ -3,7 +3,11 @@ describe("Doctor Availability Page", () => {
     cy.window().then((win) => {
       win.localStorage.setItem(
         "doctorData",
-        JSON.stringify({ name: "Dr. Test", doctorID: "doc123" })
+        JSON.stringify({
+          name: "Dr. Test",
+          doctorID: "doc123",
+          surname: "Dr. Test",
+        })
       );
     });
 
