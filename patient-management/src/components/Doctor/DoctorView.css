@@ -30,7 +30,7 @@
 }
 
 .view-logout-button {
-  background-color: #ef8e07;
+  background-color: #7a77d8;
   color: white;
   font-size: 16px;
   font-weight: bold;
@@ -43,7 +43,7 @@
 }
 
 .view-logout-button:hover {
-  background-color: #cb7906;
+  background-color: #1b158f;
 }
 
 .view-doctor-content {
