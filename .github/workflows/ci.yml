@@ -2,14 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main, ci-cd]
+    branches: ["main", "ci-cd"]
   pull_request:
-    branches: [main]
+    branches: ["main"]
 
 jobs:
-  test:
+  test-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -34,3 +33,16 @@ jobs:
       - name: Run Cypress tests
         working-directory: ./patient-management
         run: npx start-server-and-test 'npm run dev' http://localhost:5173 'npx cypress run'
+
+      - name: Build production bundle
+        working-directory: ./patient-management
+        run: npm run build
+
+      - name: Set up Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly
+        working-directory: ./patient-management
+        run: flyctl deploy --config fly.toml --verbose
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
