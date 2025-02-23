@@ -89,7 +89,7 @@ For testing the application, please use the following pre-registered doctor acco
   - **Doctor ID:** `doc7186`
   - **Password:** `saraa1234`
 
-### Patient Account (with a Finished Appointment) --> optional (the patient's can register themselves)
+### Patient Account (with a Finished Appointment) --> optional (patients can register themselves)
 
 - **Email:** `mirishala@gmail.com`
 - **Password:** `miri1234`
