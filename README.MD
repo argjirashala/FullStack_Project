@@ -1,4 +1,4 @@
-# Patient Management Application
+# Patient Management Web Application
 
 This web application is designed to enhance the interaction between doctors and patients by streamlining appointment bookings, healthcare records, and follow-ups.
 
@@ -13,7 +13,7 @@ You can access the application here:
 
 ## Overview
 
-This application is built using **Vite + React** for the frontend, ensuring a fast and efficient user experience, and leverages **Firebase** (Firestore and Authentication) as the backend service for secure data management and user authentication. Additionally, **Cloudinary** is used as a a third-party file upload/download service to handle file storage, enabling doctors to upload and share files such as PDFs or images.
+This application is built using **Vite + React** for the frontend, ensuring a fast and efficient user experience, and **Firebase** (Firestore and Authentication) as the backend service for secure data management and user authentication. Additionally, **Cloudinary** is used as a a third-party file upload/download service to handle file storage, enabling doctors to upload and share files such as PDFs or images.
 
 This application was built entirely from scratch using the concepts studied in the FullStack course. No specific tutorial was followed.
 

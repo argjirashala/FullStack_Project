@@ -1,4 +1,4 @@
-# Patient Management Application
+# Patient Management Web Application
 
 This web application is designed to enhance the interaction between doctors and patients by streamlining appointment bookings, helthcare records, and follow-ups.
 
